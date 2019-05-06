@@ -39,8 +39,8 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var filename string
-		if len(args) == 3 {
-			filename = args[2]
+		if len(args) == 1 {
+			filename = args[0]
 		} else {
 			fmt.Printf("upload requires a filename parameter\ntry the --help option\n")
 			os.Exit(1)
