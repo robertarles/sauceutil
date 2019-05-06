@@ -27,7 +27,7 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "sauceutil.go",
+	Use:   "sauceutil",
 	Short: "A command line utility for Saucelabs tasks.",
 	Long:  `TODO: LONG DESCRIPTION :A command line utility for Saucelabs tasks.`,
 	// Uncomment the following line if your bare application
@@ -50,7 +50,7 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.sauceutil.go.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.sauceutil.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -70,9 +70,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".sauceutil.go" (without extension).
+		// Search config in home directory with name ".sauceutil" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".sauceutil.go")
+		viper.SetConfigName(".sauceutil")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match

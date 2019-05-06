@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/robertarles/sauceutil.go/cmd"
+import "github.com/robertarles/sauceutil/cmd"
 
 func main() {
 	cmd.Execute()
