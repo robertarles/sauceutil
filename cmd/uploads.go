@@ -35,7 +35,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		uploads()
+		Uploads()
 	},
 }
 
@@ -66,7 +66,7 @@ type storageResponse struct {
 	Files []fileData `json:"files"`
 }
 
-func uploads() {
+func Uploads() {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
@@ -86,7 +86,7 @@ func uploads() {
 		if len(respBody.Files) > 0 {
 			fmt.Println("Files: ")
 			for i := 0; i < len(respBody.Files); i++ {
-				fmt.Printf("%d) Name: %s, Size: %d\n", i+1, respBody.Files[i].Name, respBody.Files[i].Size)
+				fmt.Printf("%d) Name: %s, Size: %d, Md5: %s\n", i+1, respBody.Files[i].Name, respBody.Files[i].Size, respBody.Files[i].Md5)
 			}
 		} else {
 			fmt.Println("No files found.")

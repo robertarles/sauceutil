@@ -29,14 +29,9 @@ import (
 
 // uploadCmd represents the upload command
 var uploadCmd = &cobra.Command{
-	Use:   "upload",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "upload {filename}",
+	Short: "Upload a file to your sauce-storage temp file storage area.",
+	Long:  `TODO: longer desc -> Upload a file to your sauce-storage temp file storage area.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var filename string
 		if len(args) == 1 {
@@ -45,7 +40,7 @@ to quickly create a Cobra application.`,
 			fmt.Printf("upload requires a filename parameter\ntry the --help option\n")
 			os.Exit(1)
 		}
-		upload(filename)
+		Upload(filename)
 	},
 }
 
@@ -71,7 +66,7 @@ type uploadResponse struct {
 }
 
 // PostUpload Post a file to sauce-storage
-func upload(uploadFilepath string) {
+func Upload(uploadFilepath string) {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")

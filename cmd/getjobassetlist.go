@@ -24,55 +24,60 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// getJobCmd represents the getJob command
-var getjobCmd = &cobra.Command{
-	Use:   "getjob {jobID}",
-	Short: "Get details on a specific job",
-	Long:  `TODO: long description -> Get details on a specific job`,
+// getjobassetlistCmd represents the getjobassetlist command
+var getjobassetlistCmd = &cobra.Command{
+	Use:   "getjobassetlist {jobID}",
+	Short: "Get a list of files associated to a job.",
+	Long:  `TODO: longer description -> Get a list of files associated to a job.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var jobID string
 		if len(args) == 1 {
 			jobID = args[0]
 		} else {
-			fmt.Printf("upload requires a jobID parameter (e.g. from getJobs command)\ntry the --help option\n")
+			fmt.Printf("upload requires a jobID parameter\ntry the --help option\n")
 			os.Exit(1)
 		}
-		GetJob(jobID)
+		GetJobAssetList(jobID)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(getjobCmd)
+	rootCmd.AddCommand(getjobassetlistCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// getJobCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// getjobassetlistCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// getJobCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// getjobassetlistCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-// GetJob Get detail on the specific job ID
-func GetJob(jobID string) {
+type assetListData struct {
+	SauceLog    string   `json:"sauce-log"`
+	Video       string   `json:"video"`
+	SeleniumLog string   `json:"selenium-log"`
+	Screenshots []string `json:"screenshots"`
+}
+
+// GetJobAssetList requests the file assets associated with the job
+func GetJobAssetList(jobID string) (responseBody assetListData, err error) {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
 
 	client := &http.Client{}
-	request, err := http.NewRequest("GET", apiURL+"/jobs/"+jobID, nil)
+	request, err := http.NewRequest("GET", apiURL+"/"+username+"/jobs/"+jobID+"/assets", nil)
 	request.SetBasicAuth(username, accessKey)
 	response, err := client.Do(request)
-	if err != nil {
-		fmt.Printf("The http request failed with error %s\n", err)
-	} else {
-		respBody := jobData{}
-		data, _ := ioutil.ReadAll(response.Body)
-		json.Unmarshal(data, &respBody)
-		fmt.Println(string(data))
-		//fmt.Printf("git commit -> %s", respBody.CustomData.GitCommit)
+	if err == nil {
+		data, err := ioutil.ReadAll(response.Body)
+		responseBody := assetListData{}
+		json.Unmarshal(data, &responseBody)
+		fmt.Printf("%+v", responseBody)
+		return responseBody, err
 	}
-
+	return assetListData{}, err
 }

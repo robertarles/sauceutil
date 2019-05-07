@@ -25,8 +25,8 @@ import (
 )
 
 // getJobsCmd represents the getJobs command
-var getJobsCmd = &cobra.Command{
-	Use:   "getJobs 5",
+var getjobsCmd = &cobra.Command{
+	Use:   "getjobs 5",
 	Short: "Retrieve a list of the most recent jobs run.",
 	Long:  `TODO: Long version -> Retrieve a list of the most recent jobs run.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -42,7 +42,7 @@ var getJobsCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(getJobsCmd)
+	rootCmd.AddCommand(getjobsCmd)
 
 	// Here you will define your flags and configuration settings.
 
