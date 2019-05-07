@@ -18,7 +18,8 @@ export SAUCE_ACCESS_KEY=yourAPIAccessKey
 ## Use
 
 ``` text
-TODO: LONG DESCRIPTION :A command line utility for Saucelabs tasks.
+A command line utility for Saucelabs tasks.
+Easily upload, check uploads, get job assets and info from the command line.
 
 Usage:
   sauceutil [command]
@@ -35,9 +36,8 @@ Available Commands:
   uploads         A list of files already uploaded to sauce-storage.
 
 Flags:
-      --config string   config file (default is $HOME/.sauceutil.yaml)
-  -h, --help            help for sauceutil
-  -t, --toggle          Help message for toggle
+  -h, --help   help for sauceutil
 
 Use "sauceutil [command] --help" for more information about a command.
+
 ```
