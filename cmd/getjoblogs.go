@@ -26,7 +26,7 @@ import (
 // getjoblogsCmd represents the getjoblogs command
 var getjoblogsCmd = &cobra.Command{
 	Use:   "getjoblogs 5",
-	Short: "Get sauce and selenium-server log file from recent jobs. Saves files to ./saucedata/{jobID}",
+	Short: "Get sauce and selenium-server log file from recent jobs. Saves to ./saucedata/{jobID}",
 	Long:  `TODO: long description -> Get sauce and selenium-server log file from recent jobs. Saves files to ./saucedata/{jobID}`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var maxJobs string
