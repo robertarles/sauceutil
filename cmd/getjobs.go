@@ -16,10 +16,12 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -28,16 +30,23 @@ import (
 var getjobsCmd = &cobra.Command{
 	Use:   "getjobs 5",
 	Short: "Retrieve a list of the most recent jobs run.",
-	Long:  `TODO: Long version -> Retrieve a list of the most recent jobs run.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		var maxJobs string
-		if len(args) == 1 {
-			maxJobs = args[0]
-		} else {
-			fmt.Printf("upload requires a parameter to specify how many jobs to list\ntry the --help option\n")
-			os.Exit(1)
+	Long:  `Retrieve a list of the most recent jobs run.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("requires an argument specifying max number of jobs to list")
 		}
-		GetJobs(maxJobs)
+		var _, err = strconv.ParseUint(args[0], 10, 16)
+		if err == nil {
+			return nil
+		}
+		return fmt.Errorf("invalid argument specified: %s required argument, specify how many jobs to list, try the --help option", args[0])
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		var maxJobs = args[0]
+		_, jsonString, err := GetJobs(maxJobs)
+		if err == nil {
+			fmt.Printf(jsonString)
+		}
 	},
 }
 
@@ -55,61 +64,24 @@ func init() {
 	// getJobsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-type customData struct {
-	BuildNumber      string `json:"BUILD_NUMBER"`
-	JenkinsBuildName string `json:"JENKINS_BUILD_NAME"`
-	GitCommit        string `json:"GIT_COMMIT"`
-}
-
-type jobData struct {
-	BrowserShortVersion string `json:"browser_short_version"`
-	VideoURL            string `json:"video_url"`
-	CreationTime        int64  `json:"creation_time"`
-	//CustomData            customData `json:"custom-data"` // TODO: handle the saucelabs  error? sometimes returns CustomData.BuildNumber as an int, not string
-	BrowserVersion        string   `json:"browser_version"`
-	Owner                 string   `json:"owner"`
-	ID                    string   `json:"id"`
-	Container             bool     `json:"container"`
-	RecordScreenshots     bool     `json:"record_screenshots"`
-	RecordVideo           bool     `json:"record_video"`
-	Build                 string   `json:"build"`
-	Passed                bool     `json:"passed"`
-	Public                string   `json:"public"`
-	EndTime               int64    `json:"end_time"`
-	Status                string   `json:"status"`
-	LogURL                string   `json:"log_url"`
-	StartTime             int64    `json:"start_time"`
-	Proxied               bool     `json:"proxied"`
-	ModificationTime      int64    `json:"modification_time"`
-	Tags                  []string `json:"tags"`
-	Name                  string   `json:"name"`
-	CommandsNotSuccessful uint32   `json:"commands_not_successful"`
-	ConsolidatedStatus    string   `json:"consolidated_stats"`
-	AssignedTunnelID      string   `json:"assigned_tunnel_id"`
-	Error                 string   `json:"error"`
-	OS                    string   `json:"os"`
-	Breakpointed          bool     `json:"breakpointed"`
-	Browser               string   `json:"browser"`
-}
-
 // GetJobs Get details for [count] last jobs
-func GetJobs(count string) ([]jobData, error) {
-	var retVal []jobData
+func GetJobs(count string) (jobDataArray []jobData, jsonString string, err error) {
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
 
 	client := &http.Client{}
 	request, err := http.NewRequest("GET", apiURL+"/jobs?limit="+count+"&full=true", nil)
 	request.SetBasicAuth(username, accessKey)
-	response, err1 := client.Do(request)
-	if err1 != nil {
-		fmt.Printf("The http request failed with error %s\n", err)
-		return retVal, err1
+	response, err := client.Do(request)
+	jsonString = ""
+	if err != nil {
+		fmt.Printf("the http request to get jobs failed with error %s\n", err)
+		return []jobData{}, jsonString, err
 	}
 	// success path
-	retVal = []jobData{}
+	jobDataArray = []jobData{}
 	data, _ := ioutil.ReadAll(response.Body)
-	err2 := json.Unmarshal(data, &retVal)
-	fmt.Println(string(data))
-	return retVal, err2
+	err = json.Unmarshal(data, &jobDataArray)
+	jsonString = string(data)
+	return jobDataArray, jsonString, err
 }

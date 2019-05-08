@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -28,16 +29,19 @@ import (
 var getjobassetlistCmd = &cobra.Command{
 	Use:   "getjobassetlist {jobID}",
 	Short: "Get a list of files associated to a job.",
-	Long:  `TODO: longer description -> Get a list of files associated to a job.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		var jobID string
-		if len(args) == 1 {
-			jobID = args[0]
-		} else {
-			fmt.Printf("upload requires a jobID parameter\ntry the --help option\n")
-			os.Exit(1)
+	Long:  `Get a list of files associated to a job.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("requires jobID argument")
 		}
-		GetJobAssetList(jobID)
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		var jobID = args[0]
+		var _, jsonString, err = GetJobAssetList(jobID)
+		if err == nil {
+			fmt.Printf(jsonString)
+		}
 	},
 }
 
@@ -55,15 +59,8 @@ func init() {
 	// getjobassetlistCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-type assetListData struct {
-	SauceLog    string   `json:"sauce-log"`
-	Video       string   `json:"video"`
-	SeleniumLog string   `json:"selenium-log"`
-	Screenshots []string `json:"screenshots"`
-}
-
 // GetJobAssetList requests the file assets associated with the job
-func GetJobAssetList(jobID string) (responseBody assetListData, err error) {
+func GetJobAssetList(jobID string) (responseBody assetListData, jsonString string, err error) {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
@@ -72,12 +69,13 @@ func GetJobAssetList(jobID string) (responseBody assetListData, err error) {
 	request, err := http.NewRequest("GET", apiURL+"/"+username+"/jobs/"+jobID+"/assets", nil)
 	request.SetBasicAuth(username, accessKey)
 	response, err := client.Do(request)
+	jsonString = ""
 	if err == nil {
 		data, err := ioutil.ReadAll(response.Body)
+		jsonString = string(data)
 		responseBody := assetListData{}
 		json.Unmarshal(data, &responseBody)
-		fmt.Printf("%+v", responseBody)
-		return responseBody, err
+		return responseBody, jsonString, err
 	}
-	return assetListData{}, err
+	return assetListData{}, "", err
 }

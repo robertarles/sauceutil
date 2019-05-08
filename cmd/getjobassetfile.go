@@ -27,7 +27,7 @@ import (
 var getjobassetfileCmd = &cobra.Command{
 	Use:   "getjobassetfile {jobid} {filename}",
 	Short: "Dowload a specific asset file.",
-	Long:  `TODO: longer desc`,
+	Long:  `Dowload a specific asset file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("getjobassetfile called")
 	},
@@ -55,23 +55,16 @@ func GetAssetFile(jobID string, filename string) (fileContents string, err error
 
 	client := &http.Client{}
 
-	// out, err := os.Create(jobID + "-" + filename)
-	// defer out.Close()
 	request, err := http.NewRequest("GET", apiURL+"/"+username+"/jobs/"+jobID+"/assets/"+filename, nil)
 	if err != nil {
 		fmt.Printf("Error _creating request object_ to get asset file %s for job %s\n%s", filename, jobID, err)
 	} else {
 		request.SetBasicAuth(username, accessKey)
 		response, err := client.Do(request)
-		//n, err := io.Copy(out, response.Body) copy to file
 		if err != nil {
 			fmt.Printf("Error getting %s for job %s\n%s\n", filename, jobID, err)
 		} else {
 			data, _ := ioutil.ReadAll(response.Body)
-			//fmt.Printf("Body of %s\n%s", filename, string(data))
-			//defer response.Body.Close()
-			// fmt.Printf("DEBUG RESPONSE N %v", n)
-			// fmt.Printf("DEBUG response: \n%v\n", response)
 			fileContents = string(data)
 		}
 	}

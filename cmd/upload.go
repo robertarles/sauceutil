@@ -31,7 +31,7 @@ import (
 var uploadCmd = &cobra.Command{
 	Use:   "upload {filename}",
 	Short: "Upload a file to your sauce-storage temp file storage area.",
-	Long:  `TODO: longer desc -> Upload a file to your sauce-storage temp file storage area.`,
+	Long:  `Upload a file to your sauce-storage temp file storage area.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var filename string
 		if len(args) == 1 {
@@ -57,14 +57,6 @@ func init() {
 	// uploadCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-type uploadResponse struct {
-	Username string `json:"username"`
-	Filename string `json:"filename"`
-	Size     string `json:"size"`
-	Md5      string `json:"md5"`
-	Etag     string `json:"etag"`
-}
-
 // PostUpload Post a file to sauce-storage
 func Upload(uploadFilepath string) {
 
@@ -83,7 +75,6 @@ func Upload(uploadFilepath string) {
 
 	postURL := apiURL + "/storage/" + username + "/" + uploadFilename + "?overwrite=true"
 
-	fmt.Printf("Posting to %s\n", postURL)
 	request, err := http.NewRequest("POST", postURL, body)
 	request.SetBasicAuth(username, accessKey)
 	request.Header.Add("Content-Type", "application/octet-stream")
@@ -97,7 +88,7 @@ func Upload(uploadFilepath string) {
 		respBody := uploadResponse{}
 		data, _ := ioutil.ReadAll(response.Body)
 		json.Unmarshal(data, &respBody)
-		fmt.Printf("\nUploaded - Username: %s, File: %s, Size: %s, md5: %s", respBody.Username, respBody.Filename, respBody.Size, respBody.Md5)
+		fmt.Printf(string(data))
 	}
 
 }

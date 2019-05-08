@@ -28,7 +28,7 @@ import (
 var uploadsCmd = &cobra.Command{
 	Use:   "uploads",
 	Short: "A list of files already uploaded to sauce-storage.",
-	Long:  `TODO: A longer desc`,
+	Long:  `A list of files already uploaded to sauce-storage.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		Uploads()
 	},
@@ -49,18 +49,6 @@ func init() {
 	// uploadsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-type fileData struct {
-	Name  string  `json:"name"`
-	Size  uint32  `json:"size"`
-	Mtime float32 `json:"mtime"`
-	Md5   string  `json:"md5"`
-	Etag  string  `json:"etag"`
-}
-
-type storageResponse struct {
-	Files []fileData `json:"files"`
-}
-
 func Uploads() {
 
 	username := os.Getenv("SAUCE_USERNAME")
@@ -77,12 +65,8 @@ func Uploads() {
 		data, _ := ioutil.ReadAll(response.Body)
 		json.Unmarshal(data, &respBody)
 
-		fmt.Println()
 		if len(respBody.Files) > 0 {
-			fmt.Println("Files: ")
-			for i := 0; i < len(respBody.Files); i++ {
-				fmt.Printf("%d) Name: %s, Size: %d, Md5: %s\n", i+1, respBody.Files[i].Name, respBody.Files[i].Size, respBody.Files[i].Md5)
-			}
+			fmt.Printf(string(data))
 		} else {
 			fmt.Println("No files found.")
 		}

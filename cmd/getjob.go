@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -28,15 +29,15 @@ import (
 var getjobCmd = &cobra.Command{
 	Use:   "getjob {jobID}",
 	Short: "Get details on a specific job",
-	Long:  `TODO: long description -> Get details on a specific job`,
-	Run: func(cmd *cobra.Command, args []string) {
-		var jobID string
-		if len(args) == 1 {
-			jobID = args[0]
-		} else {
-			fmt.Printf("upload requires a jobID parameter (e.g. from getJobs command)\ntry the --help option\n")
-			os.Exit(1)
+	Long:  `Get details on a specific job`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("requires jobID argument")
 		}
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		var jobID = args[0]
 		GetJob(jobID)
 	},
 }

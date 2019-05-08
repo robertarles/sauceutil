@@ -15,9 +15,11 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -27,15 +29,19 @@ import (
 var getjoblogsCmd = &cobra.Command{
 	Use:   "getjoblogs 5",
 	Short: "Get sauce and selenium-server log file from recent jobs. Saves to ./saucedata/{jobID}",
-	Long:  `TODO: long description -> Get sauce and selenium-server log file from recent jobs. Saves files to ./saucedata/{jobID}`,
-	Run: func(cmd *cobra.Command, args []string) {
-		var maxJobs string
-		if len(args) == 1 {
-			maxJobs = args[0]
-		} else {
-			fmt.Printf("upload requires a parameter to specify how many job logs to list\ntry the --help option\n")
-			os.Exit(1)
+	Long:  `Get sauce and selenium-server log file from recent jobs. Saves to ./saucedata/{jobID}`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("requires an argument specifying max number of job logs to retrieve")
 		}
+		var _, err = strconv.ParseUint(args[0], 10, 16)
+		if err == nil {
+			return nil
+		}
+		return fmt.Errorf("invalid argument specified: %s required argument, specify how many job logs to retrieve, try the --help option", args[0])
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		var maxJobs = args[0]
 		GetJobLogs(maxJobs)
 	},
 }
@@ -57,37 +63,31 @@ func init() {
 // GetJobLogs Gets job lobs for [count] last jobs
 func GetJobLogs(count string) {
 
-	jobs, err := GetJobs(count)
+	jobs, _, err := GetJobs(count)
 
 	if err != nil {
 		fmt.Printf("ERROR: GetJobLogs received the error message  \"%s\"\n", err)
 	} else {
 		for _, job := range jobs {
-			//startTimeString, err := strconv.ParseInt(job.StartTime, 10, 64)
-			// if err != nil {
-			// 	fmt.Printf("error converting timestamp to string: %s", err)
-			// }
 			startTime := time.Unix(job.StartTime, 0)
 			fmt.Printf("Start Time: %s, ", startTime)
 			if job.Passed {
 				fmt.Printf("PASSED ")
 			} else if len(job.Error) > 0 {
-				fmt.Printf("FAILED SAUCELABS ERROR: %s, ", job.Error)
+				fmt.Printf("FAILED, Saucelabs Error: %s\n", job.Error)
 			} else {
 				fmt.Printf("FAILED ")
 			}
-			fmt.Printf("Scenario: %s, ID: %s\n", job.Name, job.ID)
+			//fmt.Printf("Scenario: %s, ID: %s\n", job.Name, job.ID)
 			os.MkdirAll(("./saucedata/" + job.ID), 0777)
 			jobString := fmt.Sprintf("%+v", job)
 			ioutil.WriteFile("./saucedata/"+job.ID+"/"+job.ID+"-job-object.txt", []byte(jobString), 0777)
 
 			// TODO: if "Job hasn't finished running" then we should skip, it's currently written as the log for some reason
 			// TODO: does catching an error for getjobassetlist handle this?
-			assetList, err := GetJobAssetList(job.ID)
-			if err == nil {
-				fmt.Printf("saucelog: %s\n\n", assetList.SauceLog)
-			} else {
-				fmt.Printf("%s\n\n", err)
+			assetList, _, err := GetJobAssetList(job.ID)
+			if err != nil {
+				fmt.Printf("error getting asset list: %s\n", err)
 				continue
 			}
 
@@ -95,15 +95,16 @@ func GetJobLogs(count string) {
 			if err == nil {
 				err = ioutil.WriteFile("./saucedata/"+job.ID+"/"+job.ID+"-sauce-log.json", []byte(sauceLog), 0777)
 			} else {
-				fmt.Printf("%s\n", err)
+				fmt.Printf("sauce-log retrieval error: %s\n", err)
 			}
 
 			seleniumServerLog, err := GetAssetFile(job.ID, assetList.SeleniumLog)
 			if err == nil {
 				err = ioutil.WriteFile("./saucedata/"+job.ID+"/"+job.ID+"-selenium-server.log", []byte(seleniumServerLog), 0777)
 			} else {
-				fmt.Printf("%s\n", err)
+				fmt.Printf("selenium-server retrieval error: %s\n", err)
 			}
+
 		}
 	}
 }

@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -27,7 +26,7 @@ import (
 var apistatusCmd = &cobra.Command{
 	Use:   "apistatus",
 	Short: "Request the current API status.",
-	Long:  `TODO: Longer desc`,
+	Long:  `Request the current API status.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		GetAPIStatus()
 	},
@@ -47,12 +46,6 @@ func init() {
 	// apistatusCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-type statusResponse struct {
-	WaitTime           float32 `json:"wait_time"`
-	ServiceOperational bool    `json:"service_operational"`
-	StatusMessage      string  `json:"status_message"`
-}
-
 // GetAPIStatus Get the status of the Saucelabs API
 func GetAPIStatus() {
 	response, err := http.Get(apiURL + "/info/status")
@@ -63,13 +56,9 @@ func GetAPIStatus() {
 
 		data, _ := ioutil.ReadAll(response.Body)
 
-		response := statusResponse{}
-		json.Unmarshal(data, &response)
+		//response := statusResponse{}
+		//json.Unmarshal(data, &response)
 
-		fmt.Println()
-		//fmt.Println(string(data))
-		fmt.Println("WaitTime: ", response.WaitTime)
-		fmt.Println("ServiceOperational: ", response.ServiceOperational)
-		fmt.Println("StatusMessage: ", response.StatusMessage)
+		fmt.Println(string(data))
 	}
 }
