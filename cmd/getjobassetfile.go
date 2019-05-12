@@ -23,19 +23,29 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var jobIDForFile string
+var filename string
+
 // getjobassetfileCmd represents the getjobassetfile command
 var getjobassetfileCmd = &cobra.Command{
-	Use:   "getjobassetfile {jobid} {filename}",
+	Use:   "getjobassetfile -j {jobid} -f {filename}",
 	Short: "Dowload a specific asset file.",
 	Long:  `Dowload a specific asset file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("getjobassetfile called")
+		var fileContents, err = GetAssetFile(jobIDForFile, filename)
+		if err == nil {
+			fmt.Printf(fileContents)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(getjobassetfileCmd)
 
+	getjobassetfileCmd.Flags().StringVarP(&jobIDForFile, "jobid", "j", "", "Saucelabs job ID")
+	getjobassetfileCmd.MarkFlagRequired("jobid")
+	getjobassetfileCmd.Flags().StringVarP(&filename, "filename", "f", "", "Name of the jobs asset file (see output from 'getjobassetfilelist')")
+	getjobassetfileCmd.MarkFlagRequired("filename")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
@@ -55,7 +65,9 @@ func GetAssetFile(jobID string, filename string) (fileContents string, err error
 
 	client := &http.Client{}
 
-	request, err := http.NewRequest("GET", apiURL+"/"+username+"/jobs/"+jobID+"/assets/"+filename, nil)
+	var url = apiURL + "/" + username + "/jobs/" + jobID + "/assets/" + filename
+	fmt.Printf("DEBUG url: %s\n", url)
+	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Printf("Error _creating request object_ to get asset file %s for job %s\n%s", filename, jobID, err)
 	} else {

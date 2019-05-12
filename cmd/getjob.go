@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -25,20 +24,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var getJobID string
+
 // getJobCmd represents the getJob command
 var getjobCmd = &cobra.Command{
-	Use:   "getjob {jobID}",
+	Use:   "getjob -j jobID",
 	Short: "Get details on a specific job",
 	Long:  `Get details on a specific job`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return errors.New("requires jobID argument")
-		}
-		return nil
-	},
 	Run: func(cmd *cobra.Command, args []string) {
-		var jobID = args[0]
-		GetJob(jobID)
+		GetJob(getJobID)
 	},
 }
 
@@ -46,7 +40,8 @@ func init() {
 	rootCmd.AddCommand(getjobCmd)
 
 	// Here you will define your flags and configuration settings.
-
+	getjobCmd.Flags().StringVarP(&getJobID, "jobid", "j", "", "Saucelabs Job ID")
+	getjobCmd.MarkFlagRequired("jobid")
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	// getJobCmd.PersistentFlags().String("foo", "", "A help for foo")
@@ -69,7 +64,7 @@ func GetJob(jobID string) {
 	if err != nil {
 		fmt.Printf("The http request failed with error %s\n", err)
 	} else {
-		respBody := jobData{}
+		respBody := JobData{}
 		data, _ := ioutil.ReadAll(response.Body)
 		json.Unmarshal(data, &respBody)
 		fmt.Println(string(data))

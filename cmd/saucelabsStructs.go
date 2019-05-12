@@ -1,6 +1,7 @@
 package cmd
 
-type fileData struct {
+// FileData structure of Saucelabs API response
+type FileData struct {
 	Name  string  `json:"name"`
 	Size  uint32  `json:"size"`
 	Mtime float32 `json:"mtime"`
@@ -8,17 +9,20 @@ type fileData struct {
 	Etag  string  `json:"etag"`
 }
 
-type storageResponse struct {
-	Files []fileData `json:"files"`
+// StorageResponse structure of a Saucelabs API response
+type StorageResponse struct {
+	Files []FileData `json:"files"`
 }
 
-type customJobData struct {
+// CustomJobData internal structure of a Saucelabs JobData API response
+type CustomJobData struct {
 	BuildNumber      string `json:"BUILD_NUMBER"`
 	JenkinsBuildName string `json:"JENKINS_BUILD_NAME"`
 	GitCommit        string `json:"GIT_COMMIT"`
 }
 
-type jobData struct {
+// JobData structure of a Saucelabs API response
+type JobData struct {
 	BrowserShortVersion string `json:"browser_short_version"`
 	VideoURL            string `json:"video_url"`
 	CreationTime        int64  `json:"creation_time"`
@@ -49,7 +53,8 @@ type jobData struct {
 	Browser               string   `json:"browser"`
 }
 
-type uploadResponse struct {
+// UploadResponse structure of a Saucelabs API response
+type UploadResponse struct {
 	Username string `json:"username"`
 	Filename string `json:"filename"`
 	Size     string `json:"size"`
@@ -57,13 +62,15 @@ type uploadResponse struct {
 	Etag     string `json:"etag"`
 }
 
-type statusResponse struct {
+// StatusResponse structure of a Saucelabs API response
+type StatusResponse struct {
 	WaitTime           float32 `json:"wait_time"`
 	ServiceOperational bool    `json:"service_operational"`
 	StatusMessage      string  `json:"status_message"`
 }
 
-type assetListData struct {
+// AssetListData structure of a Saucelabs API response
+type AssetListData struct {
 	SauceLog    string   `json:"sauce-log"`
 	Video       string   `json:"video"`
 	SeleniumLog string   `json:"selenium-log"`

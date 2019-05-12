@@ -15,34 +15,23 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/spf13/cobra"
 )
+
+var max uint
 
 // getjoblogsCmd represents the getjoblogs command
 var getjoblogsCmd = &cobra.Command{
 	Use:   "getjoblogs 5",
 	Short: "Get sauce and selenium-server log file from recent jobs. Saves to ./saucedata/{jobID}",
 	Long:  `Get sauce and selenium-server log file from recent jobs. Saves to ./saucedata/{jobID}`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return errors.New("requires an argument specifying max number of job logs to retrieve")
-		}
-		var _, err = strconv.ParseUint(args[0], 10, 16)
-		if err == nil {
-			return nil
-		}
-		return fmt.Errorf("invalid argument specified: %s required argument, specify how many job logs to retrieve, try the --help option", args[0])
-	},
 	Run: func(cmd *cobra.Command, args []string) {
-		var maxJobs = args[0]
-		GetJobLogs(maxJobs)
+		GetJobLogs(max)
 	},
 }
 
@@ -50,6 +39,8 @@ func init() {
 	rootCmd.AddCommand(getjoblogsCmd)
 
 	// Here you will define your flags and configuration settings.
+	getjoblogsCmd.Flags().UintVarP(&max, "max", "m", 1, "Max number of jobs to return")
+	getjoblogsCmd.MarkFlagRequired("max")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
@@ -61,9 +52,9 @@ func init() {
 }
 
 // GetJobLogs Gets job lobs for [count] last jobs
-func GetJobLogs(count string) {
+func GetJobLogs(max uint) {
 
-	jobs, _, err := GetJobs(count)
+	jobs, _, err := GetJobs(fmt.Sprint(max))
 
 	if err != nil {
 		fmt.Printf("ERROR: GetJobLogs received the error message  \"%s\"\n", err)
@@ -81,7 +72,7 @@ func GetJobLogs(count string) {
 			//fmt.Printf("Scenario: %s, ID: %s\n", job.Name, job.ID)
 			os.MkdirAll(("./saucedata/" + job.ID), 0777)
 			jobString := fmt.Sprintf("%+v", job)
-			ioutil.WriteFile("./saucedata/"+job.ID+"/"+job.ID+"-job-object.txt", []byte(jobString), 0777)
+			ioutil.WriteFile("./saucedata/"+job.ID+"/"+job.ID+"-job-object.json", []byte(jobString), 0777)
 
 			// TODO: if "Job hasn't finished running" then we should skip, it's currently written as the log for some reason
 			// TODO: does catching an error for getjobassetlist handle this?

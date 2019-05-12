@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -25,19 +24,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var jobID string
+
 // getjobassetlistCmd represents the getjobassetlist command
 var getjobassetlistCmd = &cobra.Command{
-	Use:   "getjobassetlist {jobID}",
+	Use:   "getjobassetlist",
 	Short: "Get a list of files associated to a job.",
 	Long:  `Get a list of files associated to a job.`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return errors.New("requires jobID argument")
-		}
-		return nil
-	},
 	Run: func(cmd *cobra.Command, args []string) {
-		var jobID = args[0]
 		var _, jsonString, err = GetJobAssetList(jobID)
 		if err == nil {
 			fmt.Printf(jsonString)
@@ -47,8 +41,10 @@ var getjobassetlistCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(getjobassetlistCmd)
-
 	// Here you will define your flags and configuration settings.
+
+	getjobassetlistCmd.Flags().StringVarP(&jobID, "jobid", "j", "", "The Saucelabs job ID to get an asset list for.")
+	getjobassetlistCmd.MarkFlagRequired("jobid")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
@@ -60,7 +56,7 @@ func init() {
 }
 
 // GetJobAssetList requests the file assets associated with the job
-func GetJobAssetList(jobID string) (responseBody assetListData, jsonString string, err error) {
+func GetJobAssetList(jobID string) (responseBody AssetListData, jsonString string, err error) {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
@@ -73,9 +69,9 @@ func GetJobAssetList(jobID string) (responseBody assetListData, jsonString strin
 	if err == nil {
 		data, err := ioutil.ReadAll(response.Body)
 		jsonString = string(data)
-		responseBody := assetListData{}
+		responseBody := AssetListData{}
 		json.Unmarshal(data, &responseBody)
 		return responseBody, jsonString, err
 	}
-	return assetListData{}, "", err
+	return AssetListData{}, "", err
 }
