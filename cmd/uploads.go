@@ -49,6 +49,7 @@ func init() {
 	// uploadsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// Uploads returns a list of files in the sauce-storage upload area
 func Uploads() {
 
 	username := os.Getenv("SAUCE_USERNAME")
@@ -61,7 +62,7 @@ func Uploads() {
 	if err != nil {
 		fmt.Printf("The http request failed with error %s\n", err)
 	} else {
-		respBody := storageResponse{}
+		respBody := StorageResponse{}
 		data, _ := ioutil.ReadAll(response.Body)
 		json.Unmarshal(data, &respBody)
 

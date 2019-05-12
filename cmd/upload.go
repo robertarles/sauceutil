@@ -27,27 +27,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var uploadFilename string
+
 // uploadCmd represents the upload command
 var uploadCmd = &cobra.Command{
-	Use:   "upload {filename}",
+	Use:   "upload -f [filename]",
 	Short: "Upload a file to your sauce-storage temp file storage area.",
 	Long:  `Upload a file to your sauce-storage temp file storage area.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var filename string
-		if len(args) == 1 {
-			filename = args[0]
-		} else {
-			fmt.Printf("upload requires a filename parameter\ntry the --help option\n")
-			os.Exit(1)
-		}
-		Upload(filename)
+		Upload(uploadFilename)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(uploadCmd)
 	// Here you will define your flags and configuration settings.
-
+	uploadCmd.Flags().StringVarP(&uploadFilename, "filename", "f", "", "Name of file to upload to sauce-storage")
+	uploadCmd.MarkFlagRequired("filename")
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	// uploadCmd.PersistentFlags().String("foo", "", "A help for foo")
@@ -57,7 +53,7 @@ func init() {
 	// uploadCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-// PostUpload Post a file to sauce-storage
+// Upload Post a file to sauce-storage
 func Upload(uploadFilepath string) {
 
 	username := os.Getenv("SAUCE_USERNAME")
@@ -85,7 +81,7 @@ func Upload(uploadFilepath string) {
 	} else if response.StatusCode != 200 {
 		fmt.Printf("Upload request failed with status code of %d\n", response.StatusCode)
 	} else {
-		respBody := uploadResponse{}
+		respBody := UploadResponse{}
 		data, _ := ioutil.ReadAll(response.Body)
 		json.Unmarshal(data, &respBody)
 		fmt.Printf(string(data))

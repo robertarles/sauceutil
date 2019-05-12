@@ -16,34 +16,23 @@ package cmd
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/spf13/cobra"
 )
 
+var maxJobs uint
+
 // getJobsCmd represents the getJobs command
 var getjobsCmd = &cobra.Command{
-	Use:   "getjobs 5",
+	Use:   "getjobs -m 5",
 	Short: "Retrieve a list of the most recent jobs run.",
 	Long:  `Retrieve a list of the most recent jobs run.`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return errors.New("requires an argument specifying max number of jobs to list")
-		}
-		var _, err = strconv.ParseUint(args[0], 10, 16)
-		if err == nil {
-			return nil
-		}
-		return fmt.Errorf("invalid argument specified: %s required argument, specify how many jobs to list, try the --help option", args[0])
-	},
 	Run: func(cmd *cobra.Command, args []string) {
-		var maxJobs = args[0]
-		_, jsonString, err := GetJobs(maxJobs)
+		_, jsonString, err := GetJobs(fmt.Sprint(maxJobs))
 		if err == nil {
 			fmt.Printf(jsonString)
 		}
@@ -54,6 +43,8 @@ func init() {
 	rootCmd.AddCommand(getjobsCmd)
 
 	// Here you will define your flags and configuration settings.
+	getjobsCmd.Flags().UintVarP(&maxJobs, "max", "m", 1, "Max number of jobs to return")
+	getjobsCmd.MarkFlagRequired("max")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
@@ -65,7 +56,7 @@ func init() {
 }
 
 // GetJobs Get details for [count] last jobs
-func GetJobs(count string) (jobDataArray []jobData, jsonString string, err error) {
+func GetJobs(count string) (jobDataArray []JobData, jsonString string, err error) {
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
 
@@ -76,10 +67,10 @@ func GetJobs(count string) (jobDataArray []jobData, jsonString string, err error
 	jsonString = ""
 	if err != nil {
 		fmt.Printf("the http request to get jobs failed with error %s\n", err)
-		return []jobData{}, jsonString, err
+		return []JobData{}, jsonString, err
 	}
 	// success path
-	jobDataArray = []jobData{}
+	jobDataArray = []JobData{}
 	data, _ := ioutil.ReadAll(response.Body)
 	err = json.Unmarshal(data, &jobDataArray)
 	jsonString = string(data)
