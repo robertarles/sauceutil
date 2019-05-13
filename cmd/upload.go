@@ -85,7 +85,7 @@ func Upload(uploadFilepath string) (uploadResponseData UploadResponse, jsonStrin
 		return UploadResponse{}, "", err
 	} else if response.StatusCode != 200 {
 		//fmt.Printf("Upload request failed with status code of %d\n", response.StatusCode)
-		return UploadResponse{}, fmt.Sprintf(`"message": "non-200 http response", "status_code": "%s"}`, response.StatusCode), nil
+		return UploadResponse{}, fmt.Sprintf(`"message": "non-200 http response", "status_code": "%d"}`, response.StatusCode), nil
 	}
 	respBody := UploadResponse{}
 	data, _ := ioutil.ReadAll(response.Body)
