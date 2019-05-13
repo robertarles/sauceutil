@@ -67,8 +67,8 @@ func GetAPIStatus() (apiStatusResponse APIStatusResponseData, jsonString string,
 		if err != nil {
 			return response, "", err
 		}
-
-		return APIStatusResponseData{}, fmt.Sprintf("%s", string(data)), nil
+		jsonString, _ := json.MarshalIndent(response, "", "  ")
+		return APIStatusResponseData{}, string(jsonString), nil
 	}
 	return APIStatusResponseData{}, "", err
 }
