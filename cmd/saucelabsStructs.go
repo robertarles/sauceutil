@@ -62,17 +62,17 @@ type UploadResponse struct {
 	Etag     string `json:"etag"`
 }
 
-// StatusResponse structure of a Saucelabs API response
-type StatusResponse struct {
-	WaitTime           float32 `json:"wait_time"`
-	ServiceOperational bool    `json:"service_operational"`
-	StatusMessage      string  `json:"status_message"`
-}
-
 // AssetListData structure of a Saucelabs API response
 type AssetListData struct {
 	SauceLog    string   `json:"sauce-log"`
 	Video       string   `json:"video"`
 	SeleniumLog string   `json:"selenium-log"`
 	Screenshots []string `json:"screenshots"`
+}
+
+// APIStatusResponseData structure of a Saucelabs API response
+type APIStatusResponseData struct {
+	WaitTime           float64 `json:"wait_time"`
+	ServiceOperational bool    `json:"service_operational"`
+	StatusMessage      string  `json:"status_message"`
 }

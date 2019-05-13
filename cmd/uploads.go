@@ -30,7 +30,11 @@ var uploadsCmd = &cobra.Command{
 	Short: "A list of files already uploaded to sauce-storage.",
 	Long:  `A list of files already uploaded to sauce-storage.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		Uploads()
+		var jsonString, err = Uploads()
+		if err != nil {
+			fmt.Printf("%s", err)
+		}
+		fmt.Printf("%s", jsonString)
 	},
 }
 
@@ -50,7 +54,7 @@ func init() {
 }
 
 // Uploads returns a list of files in the sauce-storage upload area
-func Uploads() {
+func Uploads() (jsonString string, err error) {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
@@ -60,17 +64,16 @@ func Uploads() {
 	request.SetBasicAuth(username, accessKey)
 	response, err := client.Do(request)
 	if err != nil {
-		fmt.Printf("The http request failed with error %s\n", err)
-	} else {
-		respBody := StorageResponse{}
-		data, _ := ioutil.ReadAll(response.Body)
-		json.Unmarshal(data, &respBody)
-
-		if len(respBody.Files) > 0 {
-			fmt.Printf(string(data))
-		} else {
-			fmt.Println("No files found.")
-		}
+		var jsonString = fmt.Sprintf(`{"error": "The http request failed with error %s"}`, err)
+		return jsonString, err
 	}
+	respBody := StorageResponse{}
+	data, _ := ioutil.ReadAll(response.Body)
+	json.Unmarshal(data, &respBody)
+
+	if len(respBody.Files) > 0 {
+		return fmt.Sprintf(string(data)), nil
+	}
+	return `{"message": "No files found."}`, nil
 
 }

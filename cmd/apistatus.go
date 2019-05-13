@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -28,7 +29,11 @@ var apistatusCmd = &cobra.Command{
 	Short: "Request the current API status.",
 	Long:  `Request the current API status.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		GetAPIStatus()
+		var _, jsonString, err = GetAPIStatus()
+		if err != nil {
+			fmt.Printf("%s", err)
+		}
+		fmt.Printf("%s", jsonString)
 	},
 }
 
@@ -47,18 +52,23 @@ func init() {
 }
 
 // GetAPIStatus Get the status of the Saucelabs API
-func GetAPIStatus() {
+func GetAPIStatus() (apiStatusResponse APIStatusResponseData, jsonString string, err error) {
 	response, err := http.Get(apiURL + "/info/status")
 
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	} else {
 
-		data, _ := ioutil.ReadAll(response.Body)
+		data, err := ioutil.ReadAll(response.Body)
 
-		//response := statusResponse{}
-		//json.Unmarshal(data, &response)
+		var response APIStatusResponseData
+		json.Unmarshal(data, &response)
 
-		fmt.Println(string(data))
+		if err != nil {
+			return response, "", err
+		}
+
+		return APIStatusResponseData{}, fmt.Sprintf("%s", string(data)), nil
 	}
+	return APIStatusResponseData{}, "", err
 }

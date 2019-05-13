@@ -33,9 +33,10 @@ var getjobassetfileCmd = &cobra.Command{
 	Long:  `Dowload a specific asset file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var fileContents, err = GetAssetFile(jobIDForFile, filename)
-		if err == nil {
-			fmt.Printf(fileContents)
+		if err != nil {
+			fmt.Printf("%s", err)
 		}
+		fmt.Printf("%s", fileContents)
 	},
 }
 
