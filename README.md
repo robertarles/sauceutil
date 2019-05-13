@@ -2,7 +2,7 @@
 
 A Saucelabs command line utility written in Go.
 
-A quick way to get things done from the command line, more portable than an npm package since the executable can be shared once compiled, but for a more complete util, check out Saucelabs own https://www.npmjs.com/package/saucelabs.
+A quick way to get things done from the command line, more portable than an npm package since the executable can be shared once compiled, it's fast, it's small, and no need to install node+npm; but for a more complete util, check out Saucelabs own https://www.npmjs.com/package/saucelabs.
 
 ## Installation
 
