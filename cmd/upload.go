@@ -90,6 +90,7 @@ func Upload(uploadFilepath string) (uploadResponseData UploadResponse, jsonStrin
 	respBody := UploadResponse{}
 	data, _ := ioutil.ReadAll(response.Body)
 	json.Unmarshal(data, &respBody)
-	return respBody, string(data), nil
+	jsonBytes, _ := json.MarshalIndent(respBody, "", "  ")
+	return respBody, string(jsonBytes), nil
 
 }

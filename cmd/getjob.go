@@ -32,7 +32,7 @@ var getjobCmd = &cobra.Command{
 	Short: "Get details on a specific job",
 	Long:  `Get details on a specific job`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var jsonString, err = GetJob(getJobID)
+		var _, jsonString, err = GetJob(getJobID)
 		if err == nil {
 			fmt.Printf("%s", jsonString)
 		} else {
@@ -57,7 +57,7 @@ func init() {
 }
 
 // GetJob Get detail on the specific job ID
-func GetJob(jobID string) (jsonString string, err error) {
+func GetJob(jobID string) (jobData JobData, jsonString string, err error) {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
@@ -67,11 +67,12 @@ func GetJob(jobID string) (jsonString string, err error) {
 	request.SetBasicAuth(username, accessKey)
 	response, err := client.Do(request)
 	if err != nil {
-		return fmt.Sprintf(`{"error": "The http request failed with error %s}\n"`, err), err
+		return JobData{}, fmt.Sprintf(`{"error": "The http request failed with error %s}\n"`, err), err
 	}
 	respBody := JobData{}
 	data, _ := ioutil.ReadAll(response.Body)
 	json.Unmarshal(data, &respBody)
-	return fmt.Sprintln(string(data)), nil
+	jsonBytes, _ := json.MarshalIndent(respBody, "", "  ")
+	return respBody, string(jsonBytes), nil
 
 }

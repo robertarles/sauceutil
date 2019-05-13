@@ -73,6 +73,6 @@ func GetJobs(count string) (jobDataArray []JobData, jsonString string, err error
 	jobDataArray = []JobData{}
 	data, _ := ioutil.ReadAll(response.Body)
 	err = json.Unmarshal(data, &jobDataArray)
-	jsonString = string(data)
-	return jobDataArray, jsonString, err
+	jsonBytes, _ := json.MarshalIndent(jobDataArray, "", "  ")
+	return jobDataArray, string(jsonBytes), err
 }

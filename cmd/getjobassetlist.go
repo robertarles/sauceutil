@@ -67,16 +67,15 @@ func GetJobAssetList(jobID string) (responseBody AssetListData, jsonString strin
 	request, err := http.NewRequest("GET", apiURL+"/"+username+"/jobs/"+jobID+"/assets", nil)
 	request.SetBasicAuth(username, accessKey)
 	response, err := client.Do(request)
-	jsonString = ""
 
 	if err != nil {
 		return AssetListData{}, "", err
 	}
 
 	data, err := ioutil.ReadAll(response.Body)
-	jsonString = fmt.Sprintf(string(data))
 	responseBody = AssetListData{}
 	json.Unmarshal(data, &responseBody)
-	return responseBody, jsonString, err
+	jsonBytes, _ := json.MarshalIndent(responseBody, "", "  ")
+	return responseBody, string(jsonBytes), err
 
 }
