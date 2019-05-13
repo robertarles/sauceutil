@@ -31,11 +31,15 @@ var uploadFilename string
 
 // uploadCmd represents the upload command
 var uploadCmd = &cobra.Command{
-	Use:   "upload -f [filename]",
+	Use:   "upload -f {filename}",
 	Short: "Upload a file to your sauce-storage temp file storage area.",
 	Long:  `Upload a file to your sauce-storage temp file storage area.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		Upload(uploadFilename)
+		var _, jsonString, err = Upload(uploadFilename)
+		if err != nil {
+			fmt.Printf("%s", err)
+		}
+		fmt.Printf("%s", jsonString)
 	},
 }
 
@@ -54,7 +58,7 @@ func init() {
 }
 
 // Upload Post a file to sauce-storage
-func Upload(uploadFilepath string) {
+func Upload(uploadFilepath string) (uploadResponseData UploadResponse, jsonString string, err error) {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
@@ -77,14 +81,15 @@ func Upload(uploadFilepath string) {
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
-		fmt.Printf("The http request failed with error %s\n", err)
+		//fmt.Printf("The http request failed with error %s\n", err)
+		return UploadResponse{}, "", err
 	} else if response.StatusCode != 200 {
-		fmt.Printf("Upload request failed with status code of %d\n", response.StatusCode)
-	} else {
-		respBody := UploadResponse{}
-		data, _ := ioutil.ReadAll(response.Body)
-		json.Unmarshal(data, &respBody)
-		fmt.Printf(string(data))
+		//fmt.Printf("Upload request failed with status code of %d\n", response.StatusCode)
+		return UploadResponse{}, fmt.Sprintf(`"message": "non-200 http response", "status_code": "%s"}`, response.StatusCode), nil
 	}
+	respBody := UploadResponse{}
+	data, _ := ioutil.ReadAll(response.Body)
+	json.Unmarshal(data, &respBody)
+	return respBody, string(data), nil
 
 }

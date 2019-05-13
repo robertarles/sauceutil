@@ -28,14 +28,16 @@ var jobID string
 
 // getjobassetlistCmd represents the getjobassetlist command
 var getjobassetlistCmd = &cobra.Command{
-	Use:   "getjobassetlist",
+	Use:   "getjobassetlist -j {JobID}",
 	Short: "Get a list of files associated to a job.",
 	Long:  `Get a list of files associated to a job.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var _, jsonString, err = GetJobAssetList(jobID)
-		if err == nil {
-			fmt.Printf(jsonString)
+		if err != nil {
+			fmt.Printf("%s", err)
 		}
+		fmt.Printf("%s", jsonString)
+
 	},
 }
 
@@ -66,12 +68,15 @@ func GetJobAssetList(jobID string) (responseBody AssetListData, jsonString strin
 	request.SetBasicAuth(username, accessKey)
 	response, err := client.Do(request)
 	jsonString = ""
-	if err == nil {
-		data, err := ioutil.ReadAll(response.Body)
-		jsonString = string(data)
-		responseBody := AssetListData{}
-		json.Unmarshal(data, &responseBody)
-		return responseBody, jsonString, err
+
+	if err != nil {
+		return AssetListData{}, "", err
 	}
-	return AssetListData{}, "", err
+
+	data, err := ioutil.ReadAll(response.Body)
+	jsonString = fmt.Sprintf(string(data))
+	responseBody = AssetListData{}
+	json.Unmarshal(data, &responseBody)
+	return responseBody, jsonString, err
+
 }

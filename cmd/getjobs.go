@@ -28,7 +28,7 @@ var maxJobs uint
 
 // getJobsCmd represents the getJobs command
 var getjobsCmd = &cobra.Command{
-	Use:   "getjobs -m 5",
+	Use:   "getjobs -m {maxJobs}",
 	Short: "Retrieve a list of the most recent jobs run.",
 	Long:  `Retrieve a list of the most recent jobs run.`,
 	Run: func(cmd *cobra.Command, args []string) {

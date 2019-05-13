@@ -27,7 +27,7 @@ var max uint
 
 // getjoblogsCmd represents the getjoblogs command
 var getjoblogsCmd = &cobra.Command{
-	Use:   "getjoblogs 5",
+	Use:   "getjoblogs -m {maxJobs}",
 	Short: "Get sauce and selenium-server log file from recent jobs. Saves to ./saucedata/{jobID}",
 	Long:  `Get sauce and selenium-server log file from recent jobs. Saves to ./saucedata/{jobID}`,
 	Run: func(cmd *cobra.Command, args []string) {

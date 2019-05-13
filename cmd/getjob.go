@@ -28,11 +28,16 @@ var getJobID string
 
 // getJobCmd represents the getJob command
 var getjobCmd = &cobra.Command{
-	Use:   "getjob -j jobID",
+	Use:   "getjob -j {jobID}",
 	Short: "Get details on a specific job",
 	Long:  `Get details on a specific job`,
 	Run: func(cmd *cobra.Command, args []string) {
-		GetJob(getJobID)
+		var jsonString, err = GetJob(getJobID)
+		if err == nil {
+			fmt.Printf("%s", jsonString)
+		} else {
+			fmt.Printf("%s\n", err)
+		}
 	},
 }
 
@@ -52,7 +57,7 @@ func init() {
 }
 
 // GetJob Get detail on the specific job ID
-func GetJob(jobID string) {
+func GetJob(jobID string) (jsonString string, err error) {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
@@ -62,13 +67,11 @@ func GetJob(jobID string) {
 	request.SetBasicAuth(username, accessKey)
 	response, err := client.Do(request)
 	if err != nil {
-		fmt.Printf("The http request failed with error %s\n", err)
-	} else {
-		respBody := JobData{}
-		data, _ := ioutil.ReadAll(response.Body)
-		json.Unmarshal(data, &respBody)
-		fmt.Println(string(data))
-		//fmt.Printf("git commit -> %s", respBody.CustomData.GitCommit)
+		return fmt.Sprintf(`{"error": "The http request failed with error %s}\n"`, err), err
 	}
+	respBody := JobData{}
+	data, _ := ioutil.ReadAll(response.Body)
+	json.Unmarshal(data, &respBody)
+	return fmt.Sprintln(string(data)), nil
 
 }
