@@ -34,7 +34,7 @@ var getjobCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var _, jsonString, err = GetJob(getJobID)
 		if err == nil {
-			fmt.Printf("%s", jsonString)
+			fmt.Printf("%s\n", jsonString)
 		} else {
 			fmt.Printf("%s\n", err)
 		}
@@ -67,7 +67,7 @@ func GetJob(jobID string) (jobData JobData, jsonString string, err error) {
 	request.SetBasicAuth(username, accessKey)
 	response, err := client.Do(request)
 	if err != nil {
-		return JobData{}, fmt.Sprintf(`{"error": "The http request failed with error %s}\n"`, err), err
+		return JobData{}, fmt.Sprintf(`{"error": "The http request failed with error %s}"`, err), err
 	}
 	respBody := JobData{}
 	data, _ := ioutil.ReadAll(response.Body)

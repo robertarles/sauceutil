@@ -37,9 +37,9 @@ var uploadCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var _, jsonString, err = Upload(uploadFilename)
 		if err != nil {
-			fmt.Printf("%s", err)
+			fmt.Printf("%s\n", err)
 		}
-		fmt.Printf("%s", jsonString)
+		fmt.Printf("%s\n", jsonString)
 	},
 }
 
@@ -81,10 +81,8 @@ func Upload(uploadFilepath string) (uploadResponseData UploadResponse, jsonStrin
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
-		//fmt.Printf("The http request failed with error %s\n", err)
 		return UploadResponse{}, "", err
 	} else if response.StatusCode != 200 {
-		//fmt.Printf("Upload request failed with status code of %d\n", response.StatusCode)
 		return UploadResponse{}, fmt.Sprintf(`"message": "non-200 http response", "status_code": "%d"}`, response.StatusCode), nil
 	}
 	respBody := UploadResponse{}

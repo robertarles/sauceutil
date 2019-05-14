@@ -34,9 +34,9 @@ var getjobassetlistCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var _, jsonString, err = GetJobAssetList(jobID)
 		if err != nil {
-			fmt.Printf("%s", err)
+			fmt.Printf("%s\n", err)
 		}
-		fmt.Printf("%s", jsonString)
+		fmt.Printf("%s\n", jsonString)
 
 	},
 }

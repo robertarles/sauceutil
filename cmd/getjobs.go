@@ -34,7 +34,7 @@ var getjobsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		_, jsonString, err := GetJobs(fmt.Sprint(maxJobs))
 		if err == nil {
-			fmt.Printf(jsonString)
+			fmt.Printf("%s\n", jsonString)
 		}
 	},
 }

@@ -63,13 +63,12 @@ func GetJobLogs(max uint) {
 			startTime := time.Unix(job.StartTime, 0)
 			fmt.Printf("Start Time: %s, ", startTime)
 			if job.Passed {
-				fmt.Printf("PASSED ")
+				fmt.Printf("PASSED \n")
 			} else if len(job.Error) > 0 {
 				fmt.Printf("FAILED, Saucelabs Error: %s\n", job.Error)
 			} else {
-				fmt.Printf("FAILED ")
+				fmt.Printf("FAILED \n")
 			}
-			//fmt.Printf("Scenario: %s, ID: %s\n", job.Name, job.ID)
 			os.MkdirAll(("./saucedata/" + job.ID), 0777)
 			jobString := fmt.Sprintf("%+v", job)
 			ioutil.WriteFile("./saucedata/"+job.ID+"/"+job.ID+"-job-object.json", []byte(jobString), 0777)
