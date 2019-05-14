@@ -34,9 +34,9 @@ var getjobassetfileCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var fileContents, err = GetAssetFile(jobIDForFile, filename)
 		if err != nil {
-			fmt.Printf("%s", err)
+			fmt.Printf("%s\n", err)
 		}
-		fmt.Printf("%s", fileContents)
+		fmt.Printf("%s\n", fileContents)
 	},
 }
 
@@ -67,10 +67,9 @@ func GetAssetFile(jobID string, filename string) (fileContents string, err error
 	client := &http.Client{}
 
 	var url = apiURL + "/" + username + "/jobs/" + jobID + "/assets/" + filename
-	fmt.Printf("DEBUG url: %s\n", url)
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		fmt.Printf("Error _creating request object_ to get asset file %s for job %s\n%s", filename, jobID, err)
+		fmt.Printf("Error _creating request object_ to get asset file %s for job %s\n%s\n", filename, jobID, err)
 	} else {
 		request.SetBasicAuth(username, accessKey)
 		response, err := client.Do(request)
