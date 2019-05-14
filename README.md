@@ -41,7 +41,7 @@ Flags:
 Use "sauceutil [command] --help" for more information about a command.
 
 ```
-
+### Command line example
 ``` bash
 # sauceutil uploads  
 {
