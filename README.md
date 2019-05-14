@@ -41,3 +41,25 @@ Flags:
 Use "sauceutil [command] --help" for more information about a command.
 
 ```
+
+``` bash
+# sauceutil uploads  
+{
+  "files": [
+    {
+      "name": "Android_App.apk",
+      "size": 12194252,
+      "mtime": 1557162500,
+      "md5": "daf275a1bd0e4672023f4c6d38a03063",
+      "etag": "1fe0092eae16346c75132f50e73e7b7e"
+    },
+    {
+      "name": "iOS_App.zip",
+      "size": 22529112,
+      "mtime": 1557163100,
+      "md5": "660a6591285b94a433a85914b9512056b",
+      "etag": "5a352249cf71f433b3b8060465d2a5b9"
+    }
+  ]
+}  
+```
