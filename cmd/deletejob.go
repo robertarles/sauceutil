@@ -58,6 +58,7 @@ func init() {
 // DeleteJob Get detail on the specific job ID
 func DeleteJob(deleteJobID string) (deleteStatus string, err error) {
 
+	// TODO: add a check for existence, and validate that it was deleted.
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
 

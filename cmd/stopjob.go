@@ -57,6 +57,7 @@ func init() {
 // StopJob Get detail on the specific job ID
 func StopJob(jobID string) (jsonString string, err error) {
 
+	// TODO: add check for jobs existence and running status, the test if it's actually stopped
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
 
