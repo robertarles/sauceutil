@@ -15,9 +15,11 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -30,11 +32,11 @@ var deletejobCmd = &cobra.Command{
 	Short: "Removes the job from the Saucelabs system with all the linked assets",
 	Long:  `Removes the job from the Saucelabs system with all the linked assets`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var jsonString, err = DeleteJob(deleteJobID)
+		var _, jsonString, err = DeleteJob(deleteJobID)
 		if err == nil {
 			fmt.Printf("%s\n", jsonString)
 		} else {
-			fmt.Printf("%s\n", err)
+			fmt.Printf("%+v\n", err)
 		}
 	},
 }
@@ -56,20 +58,48 @@ func init() {
 }
 
 // DeleteJob Get detail on the specific job ID
-func DeleteJob(deleteJobID string) (deleteStatus string, err error) {
+func DeleteJob(deleteJobID string) (deleteData DeleteJobData, deleteJSONString string, err error) {
 
-	// TODO: add a check for existence, and validate that it was deleted.
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
 
-	client := &http.Client{}
-	request, err := http.NewRequest("DELETE", apiURL+"/"+username+"/jobs/"+deleteJobID, nil)
-	request.SetBasicAuth(username, accessKey)
-	response, err := client.Do(request)
-	if err != nil {
-		return `{"status": "http error"}`, err
+	jobData, _, getErr := GetJob(deleteJobID)
+	if getErr != nil {
+		return DeleteJobData{}, "{}", getErr
 	}
-	deleteStatus = fmt.Sprintf(`{"status": "%s", "statusCode:": %d}`, response.Status, response.StatusCode)
-	return deleteStatus, nil
+	if jobData.ID != deleteJobID {
+		return DeleteJobData{}, "", fmt.Errorf(fmt.Sprintf("job %s not found", deleteJobID))
+	}
+	if strings.ToLower(jobData.Status) == "running" {
+		return DeleteJobData{}, "", fmt.Errorf(fmt.Sprintf("job %s is running", deleteJobID))
+	}
+
+	client := &http.Client{}
+	request, reqErr := http.NewRequest("DELETE", apiURL+"/"+username+"/jobs/"+deleteJobID, nil)
+	if reqErr != nil {
+		return DeleteJobData{}, "", reqErr
+	}
+	request.SetBasicAuth(username, accessKey)
+	response, doErr := client.Do(request)
+	if doErr != nil {
+		return DeleteJobData{}, "", err
+	}
+	if response.StatusCode > 299 {
+		return DeleteJobData{}, "", fmt.Errorf(fmt.Sprintf("request error with status code %d\n", response.StatusCode))
+	}
+
+	respBody := DeleteJobData{}
+	// data, readError := ioutil.ReadAll(response.Body)
+	// if readError != nil {
+	// 	return DeleteJobData{}, "", readError
+	// }
+	// decodeErr := json.Unmarshal(data, &respBody)
+	decoder := json.NewDecoder(response.Body)
+	decodeErr := decoder.Decode(&respBody)
+	if decodeErr != nil {
+		return DeleteJobData{}, "", decodeErr
+	}
+	jsonBytes, _ := json.MarshalIndent(respBody, "", "  ")
+	return respBody, string(jsonBytes), nil
 
 }
