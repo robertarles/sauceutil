@@ -58,8 +58,17 @@ func init() {
 func StopJob(jobID string) (jsonString string, err error) {
 
 	// TODO: add check for jobs existence and running status, the test if it's actually stopped
+
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
+
+	getJobResponse, _, getJobErr := GetJob(jobID)
+	if getJobErr != nil {
+		return "", getJobErr
+	}
+	if getJobResponse.Status != "running" {
+		return "", fmt.Errorf(fmt.Sprintf("job %s does not appear to be running\n", jobID))
+	}
 
 	client := &http.Client{}
 	request, err := http.NewRequest("PUT", apiURL+"/"+username+"/jobs/"+jobID+"/stop", nil)
