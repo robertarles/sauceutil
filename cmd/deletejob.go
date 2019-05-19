@@ -37,6 +37,7 @@ var deletejobCmd = &cobra.Command{
 			fmt.Printf("%s\n", jsonString)
 		} else {
 			fmt.Printf("%+v\n", err)
+			os.Exit(1)
 		}
 	},
 }
@@ -89,11 +90,6 @@ func DeleteJob(deleteJobID string) (deleteData DeleteJobData, deleteJSONString s
 	}
 
 	respBody := DeleteJobData{}
-	// data, readError := ioutil.ReadAll(response.Body)
-	// if readError != nil {
-	// 	return DeleteJobData{}, "", readError
-	// }
-	// decodeErr := json.Unmarshal(data, &respBody)
 	decoder := json.NewDecoder(response.Body)
 	decodeErr := decoder.Decode(&respBody)
 	if decodeErr != nil {

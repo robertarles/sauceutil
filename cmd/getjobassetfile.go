@@ -35,6 +35,7 @@ var getjobassetfileCmd = &cobra.Command{
 		var fileContents, err = GetAssetFile(jobIDForFile, filename)
 		if err != nil {
 			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
 		fmt.Printf("%s\n", fileContents)
 	},

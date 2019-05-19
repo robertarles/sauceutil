@@ -38,6 +38,7 @@ var uploadCmd = &cobra.Command{
 		var _, jsonString, err = Upload(uploadFilename)
 		if err != nil {
 			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
 		fmt.Printf("%s\n", jsonString)
 	},

@@ -35,6 +35,9 @@ var getjobsCmd = &cobra.Command{
 		_, jsonString, err := GetJobs(fmt.Sprint(maxJobs))
 		if err == nil {
 			fmt.Printf("%s\n", jsonString)
+		} else {
+			fmt.Printf("%+v\n", err)
+			os.Exit(1)
 		}
 	},
 }

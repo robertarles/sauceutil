@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -32,6 +33,7 @@ var apistatusCmd = &cobra.Command{
 		var _, jsonString, err = GetAPIStatus()
 		if err != nil {
 			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
 		fmt.Printf("%s\n", jsonString)
 	},
