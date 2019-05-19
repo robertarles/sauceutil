@@ -37,6 +37,7 @@ var getjobCmd = &cobra.Command{
 			fmt.Printf("%s\n", jsonString)
 		} else {
 			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
 	},
 }

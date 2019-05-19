@@ -81,3 +81,8 @@ type APIStatusResponseData struct {
 type DeleteJobData struct {
 	Status string
 }
+
+// StopJobData struct of a Saucelabs stop job response
+type StopJobData struct {
+	Status string
+}

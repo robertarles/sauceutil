@@ -33,6 +33,7 @@ var uploadsCmd = &cobra.Command{
 		var _, jsonString, err = Uploads()
 		if err != nil {
 			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
 		fmt.Printf("%s\n", jsonString)
 	},
