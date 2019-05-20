@@ -19,7 +19,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -86,10 +85,17 @@ func Upload(uploadFilepath string) (uploadResponseData UploadResponse, jsonStrin
 	} else if response.StatusCode != 200 {
 		return UploadResponse{}, fmt.Sprintf(`"message": "non-200 http response", "status_code": "%d"}`, response.StatusCode), nil
 	}
+
 	respBody := UploadResponse{}
-	data, _ := ioutil.ReadAll(response.Body)
-	json.Unmarshal(data, &respBody)
-	jsonBytes, _ := json.MarshalIndent(respBody, "", "  ")
+	decoder := json.NewDecoder(response.Body)
+	decodeErr := decoder.Decode(&respBody)
+	if decodeErr != nil {
+		return UploadResponse{}, "", decodeErr
+	}
+	jsonBytes, marshErr := json.MarshalIndent(respBody, "", "  ")
+	if marshErr != nil {
+		return UploadResponse{}, "", marshErr
+	}
 	return respBody, string(jsonBytes), nil
 
 }

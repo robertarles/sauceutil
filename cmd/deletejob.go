@@ -95,7 +95,10 @@ func DeleteJob(deleteJobID string) (deleteData DeleteJobData, deleteJSONString s
 	if decodeErr != nil {
 		return DeleteJobData{}, "", decodeErr
 	}
-	jsonBytes, _ := json.MarshalIndent(respBody, "", "  ")
+	jsonBytes, marshErr := json.MarshalIndent(respBody, "", "  ")
+	if marshErr != nil {
+		return DeleteJobData{}, "", marshErr
+	}
 	return respBody, string(jsonBytes), nil
 
 }

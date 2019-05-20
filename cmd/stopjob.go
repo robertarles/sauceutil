@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -32,13 +31,12 @@ var stopjobCmd = &cobra.Command{
 	Short: "Terminates a running Saucelabs job",
 	Long:  `Terminates a running Saucelabs job`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var _, jsonString, err = StopJob(stopJobID)
-		if err == nil {
-			fmt.Printf("%s\n", jsonString)
-		} else {
+		var statusCode, err = StopJob(stopJobID)
+		if err != nil {
 			fmt.Printf("%s\n", err)
 			os.Exit(1)
 		}
+		fmt.Printf("http %d\n", statusCode)
 	},
 }
 
@@ -58,41 +56,44 @@ func init() {
 }
 
 // StopJob Get detail on the specific job ID
-func StopJob(jobID string) (stopData StopJobData, jsonString string, err error) {
+func StopJob(jobID string) (statusCode int, err error) {
 
-	// TODO: add check for jobs existence and running status, the test if it's actually stopped
+	// TODO: add check for jobs existence and running status, then after stop command -> test if it's actually stopped
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
 
 	getJobResponse, _, getJobErr := GetJob(jobID)
 	if getJobErr != nil {
-		return StopJobData{}, "", getJobErr
+		return 0, getJobErr
 	}
-	if strings.ToLower(getJobResponse.Status) != "running" {
-		return StopJobData{}, "", fmt.Errorf(fmt.Sprintf("job %s does not appear to be running\n", jobID))
+	if (strings.ToLower(getJobResponse.Status) != "running") && (strings.ToLower(getJobResponse.Status) != "in progress") {
+		return 0, fmt.Errorf(fmt.Sprintf("job %s does not appear to be running\n", jobID))
 	}
 
 	client := &http.Client{}
 	request, reqErr := http.NewRequest("PUT", apiURL+"/"+username+"/jobs/"+jobID+"/stop", nil)
 	if reqErr != nil {
-		return StopJobData{}, "", reqErr
+		return 0, reqErr
 	}
 	request.SetBasicAuth(username, accessKey)
 	response, doErr := client.Do(request)
 	if doErr != nil {
-		return StopJobData{}, "", doErr
+		return 0, doErr
 	}
-	if response.StatusCode > 299 {
-		return StopJobData{}, "", fmt.Errorf(fmt.Sprintf("stop job request returned status code %d\n", response.StatusCode))
-	}
-	decoder := json.NewDecoder(response.Body)
-	respBody := StopJobData{}
-	decodeErr := decoder.Decode(&respBody)
-	if decodeErr != nil {
-		return StopJobData{}, "", decodeErr
+	statusCode = response.StatusCode
+	if statusCode > 299 {
+		return 0, fmt.Errorf(fmt.Sprintf("stop job request returned status code %d\n", statusCode))
 	}
 
-	return stopData, jsonString, nil
+	getJobResponseAft, _, getJobErrAft := GetJob(jobID)
+	if getJobErr != nil {
+		return 0, getJobErrAft
+	}
+	if strings.ToLower(getJobResponseAft.Status) == "running" || (strings.ToLower(getJobResponse.Status) != "in progress") {
+		return 0, fmt.Errorf(fmt.Sprintf("job %s does not appear to have stopped\n", jobID))
+	}
+
+	return statusCode, nil
 
 }
