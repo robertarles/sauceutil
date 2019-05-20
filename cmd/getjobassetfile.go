@@ -35,6 +35,7 @@ var getjobassetfileCmd = &cobra.Command{
 		var fileContents, err = GetAssetFile(jobIDForFile, filename)
 		if err != nil {
 			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
 		fmt.Printf("%s\n", fileContents)
 	},
@@ -60,6 +61,9 @@ func init() {
 
 // GetAssetFile gets a copy of the specified file associate tot he job (screenshots, logs, etc)
 func GetAssetFile(jobID string, filename string) (fileContents string, err error) {
+
+	// TODO: currently sending file streams to stdout, so must redirect to file
+	// Send binaries direct to file rather than stdout? Why not the same for text files?
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")

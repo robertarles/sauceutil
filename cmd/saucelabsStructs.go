@@ -26,7 +26,7 @@ type JobData struct {
 	BrowserShortVersion string `json:"browser_short_version"`
 	VideoURL            string `json:"video_url"`
 	CreationTime        int64  `json:"creation_time"`
-	//CustomData            customJobData `json:"custom-data"` // TODO: handle the saucelabs  error? sometimes returns CustomData.BuildNumber as an int, not string
+	//CustomData            CustomJobData `json:"custom-data"` // TODO: handle the saucelabs  error? sometimes returns CustomData.BuildNumber as an int, not string
 	BrowserVersion        string   `json:"browser_version"`
 	Owner                 string   `json:"owner"`
 	ID                    string   `json:"id"`
@@ -75,4 +75,9 @@ type APIStatusResponseData struct {
 	WaitTime           float64 `json:"wait_time"`
 	ServiceOperational bool    `json:"service_operational"`
 	StatusMessage      string  `json:"status_message"`
+}
+
+// DeleteJobData struct of a Saucelabs delete job response
+type DeleteJobData struct {
+	Status string
 }

@@ -17,7 +17,6 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -33,9 +32,12 @@ var getjobsCmd = &cobra.Command{
 	Long:  `Retrieve a list of the most recent jobs run.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		_, jsonString, err := GetJobs(fmt.Sprint(maxJobs))
-		if err == nil {
-			fmt.Printf("%s\n", jsonString)
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			os.Exit(1)
 		}
+
+		fmt.Printf("%s\n", jsonString)
 	},
 }
 
@@ -57,6 +59,7 @@ func init() {
 
 // GetJobs Get details for [count] last jobs
 func GetJobs(count string) (jobDataArray []JobData, jsonString string, err error) {
+
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
 
@@ -64,15 +67,22 @@ func GetJobs(count string) (jobDataArray []JobData, jsonString string, err error
 	request, err := http.NewRequest("GET", apiURL+"/jobs?limit="+count+"&full=true", nil)
 	request.SetBasicAuth(username, accessKey)
 	response, err := client.Do(request)
-	jsonString = ""
 	if err != nil {
 		fmt.Printf("the http request to get jobs failed with error %s\n", err)
 		return []JobData{}, jsonString, err
 	}
-	// success path
+
+	decoder := json.NewDecoder(response.Body)
 	jobDataArray = []JobData{}
-	data, _ := ioutil.ReadAll(response.Body)
-	err = json.Unmarshal(data, &jobDataArray)
-	jsonBytes, _ := json.MarshalIndent(jobDataArray, "", "  ")
+	decodeErr := decoder.Decode(&jobDataArray)
+	if decodeErr != nil {
+		return []JobData{}, "", decodeErr
+	}
+	jsonBytes, marshErr := json.MarshalIndent(jobDataArray, "", "  ")
+	if marshErr != nil {
+		return []JobData{}, "", marshErr
+	}
+
 	return jobDataArray, string(jsonBytes), err
+
 }

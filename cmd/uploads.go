@@ -17,7 +17,6 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -33,6 +32,7 @@ var uploadsCmd = &cobra.Command{
 		var _, jsonString, err = Uploads()
 		if err != nil {
 			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
 		fmt.Printf("%s\n", jsonString)
 	},
@@ -60,21 +60,31 @@ func Uploads() (storageResponse StorageResponse, jsonString string, err error) {
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
 
 	client := &http.Client{}
-	request, err := http.NewRequest("GET", apiURL+"/storage/"+username, nil)
+	request, reqErr := http.NewRequest("GET", apiURL+"/storage/"+username, nil)
+	if reqErr != nil {
+		return StorageResponse{}, "", reqErr
+	}
 	request.SetBasicAuth(username, accessKey)
-	response, err := client.Do(request)
-	if err != nil {
-		var jsonString = fmt.Sprintf(`{"error": "The http request failed with error %s"}`, err)
-		return StorageResponse{}, jsonString, err
+	response, doErr := client.Do(request)
+	if doErr != nil {
+		return StorageResponse{}, "", doErr
 	}
-	storageResponse = StorageResponse{}
-	data, _ := ioutil.ReadAll(response.Body)
-	json.Unmarshal(data, &storageResponse)
 
-	if len(storageResponse.Files) > 0 {
-		jsonBytes, _ := json.MarshalIndent(storageResponse, "", "  ")
-		return storageResponse, string(jsonBytes), nil
+	decoder := json.NewDecoder(response.Body)
+	storageResponse = StorageResponse{}
+	decodeErr := decoder.Decode(&storageResponse)
+	if decodeErr != nil {
+		return StorageResponse{}, "", decodeErr
 	}
-	return StorageResponse{}, `{"message": "No files found."}`, nil
+
+	if len(storageResponse.Files) < 1 {
+		return StorageResponse{}, "", nil
+	}
+
+	jsonBytes, marshErr := json.MarshalIndent(storageResponse, "", "  ")
+	if marshErr != nil {
+		return StorageResponse{}, "", marshErr
+	}
+	return storageResponse, string(jsonBytes), nil
 
 }

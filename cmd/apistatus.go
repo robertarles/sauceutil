@@ -17,8 +17,8 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -32,6 +32,7 @@ var apistatusCmd = &cobra.Command{
 		var _, jsonString, err = GetAPIStatus()
 		if err != nil {
 			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
 		fmt.Printf("%s\n", jsonString)
 	},
@@ -52,23 +53,26 @@ func init() {
 }
 
 // GetAPIStatus Get the status of the Saucelabs API
-func GetAPIStatus() (apiStatusResponse APIStatusResponseData, jsonString string, err error) {
+func GetAPIStatus() (respBody APIStatusResponseData, jsonString string, err error) {
+
 	response, err := http.Get(apiURL + "/info/status")
 
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
-	} else {
-
-		data, err := ioutil.ReadAll(response.Body)
-
-		var response APIStatusResponseData
-		json.Unmarshal(data, &response)
-
-		if err != nil {
-			return response, "", err
-		}
-		jsonString, _ := json.MarshalIndent(response, "", "  ")
-		return APIStatusResponseData{}, string(jsonString), nil
+		return APIStatusResponseData{}, "", err
 	}
-	return APIStatusResponseData{}, "", err
+
+	respBody = APIStatusResponseData{}
+	decoder := json.NewDecoder(response.Body)
+	decodeErr := decoder.Decode(&respBody)
+	if decodeErr != nil {
+		return APIStatusResponseData{}, "", decodeErr
+	}
+	jsonBytes, marshErr := json.MarshalIndent(respBody, "", "  ")
+	if marshErr != nil {
+		return APIStatusResponseData{}, "", marshErr
+	}
+
+	return respBody, string(jsonBytes), nil
+
 }
