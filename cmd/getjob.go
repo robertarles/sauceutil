@@ -17,7 +17,6 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -58,7 +57,7 @@ func init() {
 }
 
 // GetJob Get detail on the specific job ID
-func GetJob(jobID string) (jobData JobData, jsonString string, err error) {
+func GetJob(jobID string) (respBody JobData, jsonString string, err error) {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
@@ -70,10 +69,18 @@ func GetJob(jobID string) (jobData JobData, jsonString string, err error) {
 	if err != nil {
 		return JobData{}, fmt.Sprintf(`{"error": "The http request failed with error %s}"`, err), err
 	}
-	respBody := JobData{}
-	data, _ := ioutil.ReadAll(response.Body)
-	json.Unmarshal(data, &respBody)
-	jsonBytes, _ := json.MarshalIndent(respBody, "", "  ")
+
+	respBody = JobData{}
+	decoder := json.NewDecoder(response.Body)
+	decodeErr := decoder.Decode(&respBody)
+	if decodeErr != nil {
+		return JobData{}, "", decodeErr
+	}
+	jsonBytes, marshErr := json.MarshalIndent(respBody, "", "  ")
+	if marshErr != nil {
+		return JobData{}, "", marshErr
+	}
+
 	return respBody, string(jsonBytes), nil
 
 }

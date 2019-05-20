@@ -17,7 +17,6 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -32,6 +31,7 @@ var getjobassetlistCmd = &cobra.Command{
 	Short: "Get a list of files associated to a job.",
 	Long:  `Get a list of files associated to a job.`,
 	Run: func(cmd *cobra.Command, args []string) {
+
 		var _, jsonString, err = GetJobAssetList(jobID)
 		if err != nil {
 			fmt.Printf("%s\n", err)
@@ -59,7 +59,7 @@ func init() {
 }
 
 // GetJobAssetList requests the file assets associated with the job
-func GetJobAssetList(jobID string) (responseBody AssetListData, jsonString string, err error) {
+func GetJobAssetList(jobID string) (respBody AssetListData, jsonString string, err error) {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
@@ -73,10 +73,16 @@ func GetJobAssetList(jobID string) (responseBody AssetListData, jsonString strin
 		return AssetListData{}, "", err
 	}
 
-	data, err := ioutil.ReadAll(response.Body)
-	responseBody = AssetListData{}
-	json.Unmarshal(data, &responseBody)
-	jsonBytes, _ := json.MarshalIndent(responseBody, "", "  ")
-	return responseBody, string(jsonBytes), err
+	respBody = AssetListData{}
+	decoder := json.NewDecoder(response.Body)
+	decodeErr := decoder.Decode(&respBody)
+	if decodeErr != nil {
+		return AssetListData{}, "", decodeErr
+	}
+	jsonBytes, marshErr := json.MarshalIndent(respBody, "", "  ")
+	if marshErr != nil {
+		return AssetListData{}, "", marshErr
+	}
+	return respBody, string(jsonBytes), nil
 
 }
