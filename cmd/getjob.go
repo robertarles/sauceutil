@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"reflect"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -31,14 +33,75 @@ var getjobCmd = &cobra.Command{
 	Short: "Get details on a specific job",
 	Long:  `Get details on a specific job`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var _, jsonString, err = GetJob(getJobID)
-		if err == nil {
-			fmt.Printf("%s\n", jsonString)
-		} else {
+		var jobData, _, err = GetJob(getJobID)
+		if err != nil {
 			fmt.Printf("%s\n", err)
 			os.Exit(1)
 		}
+		//fmt.Printf("%s\n\n", jsonString)
+		Iprint(jobData, []string{"BrowserShortVersion", "Passed"})
 	},
+}
+
+// Iprint experimenting with handling arbitrary structs
+func Iprint(strct interface{}, fieldNames []string) error {
+
+	// switch reflect.TypeOf(strct).String() {
+	// case "cmd.JobData":
+	// 	fmt.Printf("DEBUG - got job data\n")
+	// case "cmd.APIStatusResponseData":
+	// 	fmt.Printf("DEBUG - got api response data")
+	// }
+	sType := reflect.TypeOf(strct)
+	sVals := reflect.Indirect(reflect.ValueOf(strct))
+	oVals := []string{}
+	eHeaders := []string{}
+	for i := 0; i < sType.NumField(); i++ {
+		if ArrayContains(fieldNames, sType.Field(i).Name) {
+			val := fmt.Sprintf("%#v", sVals.Field(i))
+			oVals = append(oVals, val)
+			eHeaders = append(eHeaders, sType.Field(i).Name)
+		}
+	}
+
+	maxLens := []int{}
+	for i := 0; i < len(oVals); i++ {
+		if len(oVals[i]) > len(eHeaders[i]) {
+			maxLens = append(maxLens, len(oVals[i]))
+		} else {
+			maxLens = append(maxLens, len(eHeaders[i]))
+		}
+	}
+
+	header := ""
+	for i := 0; i < len(eHeaders); i++ {
+		header += fmt.Sprintf("%s", rightPad2Len(eHeaders[i], " ", maxLens[i]+2))
+	}
+	fmt.Printf("%s\n", header)
+	row := ""
+	for i := 0; i < len(oVals); i++ {
+		row += fmt.Sprintf("%s", rightPad2Len(oVals[i], " ", maxLens[i]+2))
+	}
+	fmt.Printf("%s\n", row)
+
+	return nil
+}
+
+func rightPad2Len(s string, padStr string, overallLen int) string {
+	var padCountInt int
+	padCountInt = 1 + ((overallLen - len(padStr)) / len(padStr))
+	var retStr = s + strings.Repeat(padStr, padCountInt)
+	return retStr[:overallLen]
+}
+
+// ArrayContains returns true if []string contains the target string
+func ArrayContains(arr []string, target string) bool {
+	for _, item := range arr {
+		if item == target {
+			return true
+		}
+	}
+	return false
 }
 
 func init() {
