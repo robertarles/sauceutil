@@ -44,8 +44,12 @@ func Execute() {
 	}
 }
 
+// OutFormat an array of user supplied fields to determine columns displayed for formatted output
+var OutFormat []string
+
 func init() {
 	cobra.OnInitialize(initConfig)
+	rootCmd.PersistentFlags().StringSliceVarP(&OutFormat, "", "o", []string{}, "Formatted output. Supply a single, quoted and comma separated list of columns to display")
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
