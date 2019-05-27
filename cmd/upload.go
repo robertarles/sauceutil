@@ -34,12 +34,26 @@ var uploadCmd = &cobra.Command{
 	Short: "Upload a file to your sauce-storage temp file storage area.",
 	Long:  `Upload a file to your sauce-storage temp file storage area.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var _, jsonString, err = Upload(uploadFilename)
+		var uploadResponse, jsonString, err = Upload(uploadFilename)
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			os.Exit(1)
 		}
-		fmt.Printf("%s\n", jsonString)
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			os.Exit(1)
+		}
+		if len(OutFormat) == 0 {
+			fmt.Printf("%s\n", jsonString)
+		} else {
+			printHeader := true
+			err := OPrintStruct(OutFormat, uploadResponse, printHeader)
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				os.Exit(1)
+			}
+		}
+		os.Exit(0)
 	},
 }
 

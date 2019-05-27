@@ -31,13 +31,25 @@ var getjobsCmd = &cobra.Command{
 	Short: "Retrieve a list of the most recent jobs run.",
 	Long:  `Retrieve a list of the most recent jobs run.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		_, jsonString, err := GetJobs(fmt.Sprint(maxJobs))
+		jobsData, jsonString, err := GetJobs(fmt.Sprint(maxJobs))
 		if err != nil {
 			fmt.Printf("%+v\n", err)
 			os.Exit(1)
 		}
-
-		fmt.Printf("%s\n", jsonString)
+		if len(OutFormat) == 0 {
+			fmt.Printf("%s\n\n", jsonString)
+		} else {
+			printHeader := true
+			for i := range jobsData {
+				err := OPrintStruct(OutFormat, jobsData[i], printHeader)
+				if err != nil {
+					fmt.Printf("%+v\n", err)
+					os.Exit(1)
+				}
+				printHeader = false
+			}
+		}
+		os.Exit(0)
 	},
 }
 

@@ -57,7 +57,7 @@ type JobData struct {
 type UploadResponse struct {
 	Username string `json:"username"`
 	Filename string `json:"filename"`
-	Size     string `json:"size"`
+	Size     int    `json:"size"`
 	Md5      string `json:"md5"`
 	Etag     string `json:"etag"`
 }
@@ -79,5 +79,5 @@ type APIStatusResponseData struct {
 
 // DeleteJobData struct of a Saucelabs delete job response
 type DeleteJobData struct {
-	Status string
+	Status string `json:"status"`
 }

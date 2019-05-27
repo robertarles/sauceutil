@@ -32,13 +32,27 @@ var deletejobCmd = &cobra.Command{
 	Short: "Removes the job from the Saucelabs system with all the linked assets",
 	Long:  `Removes the job from the Saucelabs system with all the linked assets`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var _, jsonString, err = DeleteJob(deleteJobID)
-		if err == nil {
-			fmt.Printf("%s\n", jsonString)
-		} else {
+		var deleteJobData, jsonString, err = DeleteJob(deleteJobID)
+		if err != nil {
+			fmt.Printf("%s\n", err)
+			os.Exit(1)
+		}
+		if err != nil {
 			fmt.Printf("%+v\n", err)
 			os.Exit(1)
 		}
+		if len(OutFormat) == 0 {
+			fmt.Printf("%s\n", jsonString)
+		} else {
+			printHeader := true
+			err := OPrintStruct(OutFormat, deleteJobData, printHeader)
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				os.Exit(1)
+			}
+		}
+		os.Exit(0)
+
 	},
 }
 
