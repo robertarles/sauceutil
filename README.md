@@ -26,12 +26,14 @@ Usage:
 
 Available Commands:
   apistatus       Request the current API status.
+  deletejob       Removes the job from the Saucelabs system with all the linked assets
   getjob          Get details on a specific job
   getjobassetfile Dowload a specific asset file.
   getjobassetlist Get a list of files associated to a job.
   getjoblogs      Get sauce and selenium-server log file from recent jobs. Saves to ./saucedata/{jobID}
   getjobs         Retrieve a list of the most recent jobs run.
   help            Help about any command
+  stopjob         Terminates a running Saucelabs job
   upload          Upload a file to your sauce-storage temp file storage area.
   uploads         A list of files already uploaded to sauce-storage.
 
@@ -39,9 +41,10 @@ Flags:
   -h, --help   help for sauceutil
 
 Use "sauceutil [command] --help" for more information about a command.
-
 ```
+
 ### Command line example
+
 ``` bash
 $ sauceutil uploads  
 {
