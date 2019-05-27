@@ -29,12 +29,32 @@ var uploadsCmd = &cobra.Command{
 	Short: "A list of files already uploaded to sauce-storage.",
 	Long:  `A list of files already uploaded to sauce-storage.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var _, jsonString, err = Uploads()
+		var storageResponse, jsonString, err = Uploads()
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			os.Exit(1)
 		}
-		fmt.Printf("%s\n", jsonString)
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			os.Exit(1)
+		}
+		if len(OutFormat) == 0 {
+			fmt.Printf("%s\n", jsonString)
+		} else {
+			printHeader := true
+			err := OPrintStruct(OutFormat, storageResponse, printHeader)
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				os.Exit(1)
+			}
+		}
+		os.Exit(0)
+
+		// if err != nil {
+		// 	fmt.Printf("%s\n", err)
+		// 	os.Exit(1)
+		// }
+		// fmt.Printf("%s\n", jsonString)
 	},
 }
 

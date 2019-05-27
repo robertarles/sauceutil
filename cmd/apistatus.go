@@ -29,12 +29,26 @@ var apistatusCmd = &cobra.Command{
 	Short: "Request the current API status.",
 	Long:  `Request the current API status.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var _, jsonString, err = GetAPIStatus()
+		var apiStatusResponseData, jsonString, err = GetAPIStatus()
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			os.Exit(1)
 		}
-		fmt.Printf("%s\n", jsonString)
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			os.Exit(1)
+		}
+		if len(OutFormat) == 0 {
+			fmt.Printf("%s\n", jsonString)
+		} else {
+			printHeader := true
+			err := OPrintStruct(OutFormat, apiStatusResponseData, printHeader)
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				os.Exit(1)
+			}
+		}
+		os.Exit(0)
 	},
 }
 

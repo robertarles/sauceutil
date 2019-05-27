@@ -25,6 +25,8 @@ import (
 
 var stopJobID string
 
+// TODO: fix this to return an object so that the -o flag can format output
+
 // stopjobCmd represents the stopjob command
 var stopjobCmd = &cobra.Command{
 	Use:   "stopjob -j {jobID}",

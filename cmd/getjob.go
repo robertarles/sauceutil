@@ -40,8 +40,10 @@ var getjobCmd = &cobra.Command{
 		if len(OutFormat) == 0 {
 			fmt.Printf("%s\n\n", jsonString)
 		} else {
-			Oprint(jobData, OutFormat)
+			printHeader := true
+			OPrintStruct(OutFormat, jobData, printHeader)
 		}
+		os.Exit(0)
 	},
 }
 

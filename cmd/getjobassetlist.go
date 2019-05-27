@@ -32,7 +32,22 @@ var getjobassetlistCmd = &cobra.Command{
 	Long:  `Get a list of files associated to a job.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var _, jsonString, err = GetJobAssetList(jobID)
+		var assetListData, jsonString, err = GetJobAssetList(jobID)
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			os.Exit(1)
+		}
+		if len(OutFormat) == 0 {
+			fmt.Printf("%s\n\n", jsonString)
+		} else {
+			printHeader := true
+			err := OPrintStruct(OutFormat, assetListData, printHeader)
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				os.Exit(1)
+			}
+		}
+		os.Exit(0)
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			os.Exit(1)
