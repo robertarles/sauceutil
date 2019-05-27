@@ -38,31 +38,56 @@ Available Commands:
   uploads         A list of files already uploaded to sauce-storage.
 
 Flags:
-  -h, --help   help for sauceutil
+  -o, -- strings   Formatted output. Supply a single, quoted and comma separated list of columns to display
+  -h, --help       help for sauceutil
 
 Use "sauceutil [command] --help" for more information about a command.
+
 ```
 
 ### Command line example
 
 ``` bash
-$ sauceutil uploads  
-{
-  "files": [
-    {
-      "name": "Android_App.apk",
-      "size": 12194252,
-      "mtime": 1557162500,
-      "md5": "daf275a1bd0e4672023f4c6d38a03063",
-      "etag": "1fe0092eae16346c75132f50e73e7b7e"
-    },
-    {
-      "name": "iOS_App.zip",
-      "size": 22529112,
-      "mtime": 1557163100,
-      "md5": "660a6591285b94a433a85914b9512056b",
-      "etag": "5a352249cf71f433b3b8060465d2a5b9"
-    }
-  ]
-}  
+$ sauceutil getjobs -m 1
+[
+  {
+    "browser_short_version": "8.0",
+    "video_url": "https://assets.saucelabs.com/jobs/3ec4af43fa7a486b9217e733a798bc85/video.flv",
+    "creation_time": 1557161283,
+    "browser_version": "8.0.",
+    "owner": "ownername",
+    "id": "3ec4af43fa7a486b9217e733a798bc85",
+    "container": false,
+    "record_screenshots": true,
+    "record_video": true,
+    "build": "20190301_14.1",
+    "passed": false,
+    "public": "team",
+    "end_time": 1557161283,
+    "status": "complete",
+    "log_url": "https://assets.saucelabs.com/jobs/3ec4af43fa7a486b9217e733a798bc85/selenium-server.log",
+    "start_time": 0,
+    "proxied": false,
+    "modification_time": 1557161283,
+    "name": "",
+    "commands_not_successful": 0,
+    "consolidated_stats": "",
+    "assigned_tunnel_id": "",
+    "error": "No active tunnel found for identifier primary_sauce_tunnel",
+    "os": "Linux",
+    "breakpointed": false,
+    "browser": "android"
+  }
+]
+  
+```
+### Command line example with `-o` formatting. Noted the field names are from the JSON in the previous example
+``` bash
+$ sauceutil getjobs -m 5 -o "id,passed,status,owner"
+id                                passed  status    owner              
+3ec4af43fa7a486b9217e733a798bc85  false   complete  ownername1  
+0f2833b8492b424ae604a90f556e915c  false   complete  ownername3  
+54ea20cd3f6b4db8be0984e0d42a6376  false   complete  ownername2  
+c029e776f1b847b580a27e0dd53d198e  false   complete  ownername1  
+d56880d2b83af6f0a456417f127af80f  false   complete  ownername1 
 ```
