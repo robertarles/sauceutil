@@ -25,8 +25,6 @@ import (
 
 var stopJobID string
 
-// TODO: fix this to return an object so that the -o flag can format output
-
 // stopjobCmd represents the stopjob command
 var stopjobCmd = &cobra.Command{
 	Use:   "stopjob -j {jobID}",
@@ -58,6 +56,7 @@ func init() {
 }
 
 // StopJob Get detail on the specific job ID
+// Note that a stop job request does not return a json response, only an HTTP status code
 func StopJob(jobID string) (statusCode int, err error) {
 
 	// TODO: add check for jobs existence and running status, then after stop command -> test if it's actually stopped
@@ -86,14 +85,6 @@ func StopJob(jobID string) (statusCode int, err error) {
 	statusCode = response.StatusCode
 	if statusCode > 299 {
 		return 0, fmt.Errorf(fmt.Sprintf("stop job request returned status code %d\n", statusCode))
-	}
-
-	getJobResponseAft, _, getJobErrAft := GetJob(jobID)
-	if getJobErr != nil {
-		return 0, getJobErrAft
-	}
-	if strings.ToLower(getJobResponseAft.Status) == "running" || (strings.ToLower(getJobResponse.Status) != "in progress") {
-		return 0, fmt.Errorf(fmt.Sprintf("job %s does not appear to have stopped\n", jobID))
 	}
 
 	return statusCode, nil

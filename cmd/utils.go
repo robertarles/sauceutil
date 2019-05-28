@@ -73,3 +73,20 @@ func OPrintStruct(reqFieldNames []string, strct interface{}, printHeader bool) e
 
 	return nil
 }
+
+func rightPad2Len(s string, padStr string, overallLen int) string {
+	var padCountInt int
+	padCountInt = 1 + ((overallLen - len(padStr)) / len(padStr))
+	var retStr = s + strings.Repeat(padStr, padCountInt)
+	return retStr[:overallLen]
+}
+
+// ArrayContains returns true if []string contains the target string
+func ArrayContains(arr []string, target string) bool {
+	for _, item := range arr {
+		if item == target {
+			return true
+		}
+	}
+	return false
+}
