@@ -6,7 +6,13 @@ A quick way to get things done from the command line, more portable than an npm 
 
 ## Installation
 
+Just download the binary for your system from the `bin` directory. Navigate to the executable above, click it, then you'll see a download button.
+
+-OR-
+
 `go get github.com/robertarles/sauceutil`
+
+## Configuration
 
 `sauceutil` expects your username and access key to be set in your environment variables (eg ~/.bashrc or ~/.zshrc):
 
