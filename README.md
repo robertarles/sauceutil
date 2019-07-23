@@ -7,8 +7,7 @@ A quick way to get things done from the command line, more portable than an npm 
 Note: If you have node/npm installed, check out Saucelabs own https://www.npmjs.com/package/saucelabs, it's a complete API client implementation.
 
 ## Installation
-
-Just download the binary for your system from the `bin` directory. Navigate to the executable above, click it, then you'll see a download button.
+Look in the `bin` directory (above if you read this on Github), find the binary for your platorm, click it, then you'll see a download button.
 
 -OR-
 
