@@ -27,7 +27,7 @@ var stopJobID string
 
 // stopjobCmd represents the stopjob command
 var stopjobCmd = &cobra.Command{
-	Use:   "stopjob -j {jobID}",
+	Use:   "stopjob -i {jobID}",
 	Short: "Terminates a running Saucelabs job",
 	Long:  `Terminates a running Saucelabs job`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -44,8 +44,8 @@ func init() {
 	rootCmd.AddCommand(stopjobCmd)
 
 	// Here you will define your flags and configuration settings.
-	stopjobCmd.Flags().StringVarP(&stopJobID, "jobid", "j", "", "Saucelabs Job ID")
-	stopjobCmd.MarkFlagRequired("jobid")
+	stopjobCmd.Flags().StringVarP(&stopJobID, "id", "i", "", "Saucelabs Job ID")
+	stopjobCmd.MarkFlagRequired("id")
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	// stopjobCmd.PersistentFlags().String("foo", "", "A help for foo")

@@ -27,7 +27,7 @@ var maxJobs uint
 
 // getJobsCmd represents the getJobs command
 var getjobsCmd = &cobra.Command{
-	Use:   "getjobs -m {maxJobs}",
+	Use:   "jobs -m {maxJobs} (defaults to 5)",
 	Short: "Retrieve a list of the most recent jobs run.",
 	Long:  `Retrieve a list of the most recent jobs run.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -57,8 +57,8 @@ func init() {
 	rootCmd.AddCommand(getjobsCmd)
 
 	// Here you will define your flags and configuration settings.
-	getjobsCmd.Flags().UintVarP(&maxJobs, "max", "m", 1, "Max number of jobs to return")
-	getjobsCmd.MarkFlagRequired("max")
+	getjobsCmd.Flags().UintVarP(&maxJobs, "max", "m", 5, "Max number of jobs to return")
+	//getjobsCmd.MarkFlagRequired("max")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:

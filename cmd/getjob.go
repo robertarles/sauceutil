@@ -27,7 +27,7 @@ var getJobID string
 
 // getJobCmd represents the getJob command
 var getjobCmd = &cobra.Command{
-	Use:   "getjob -j {jobID}",
+	Use:   "job -i {jobID}",
 	Short: "Get details on a specific job",
 	Long:  `Get details on a specific job`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -50,8 +50,8 @@ func init() {
 	rootCmd.AddCommand(getjobCmd)
 
 	// Here you will define your flags and configuration settings.
-	getjobCmd.Flags().StringVarP(&getJobID, "jobid", "j", "", "Saucelabs Job ID")
-	getjobCmd.MarkFlagRequired("jobid")
+	getjobCmd.Flags().StringVarP(&getJobID, "id", "i", "", "Saucelabs Job ID")
+	getjobCmd.MarkFlagRequired("id")
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	// getJobCmd.PersistentFlags().String("foo", "", "A help for foo")

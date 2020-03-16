@@ -27,7 +27,7 @@ var max uint
 
 // getjoblogsCmd represents the getjoblogs command
 var getjoblogsCmd = &cobra.Command{
-	Use:   "getjoblogs -m {maxJobs}",
+	Use:   "joblogs -m {maxJobs} (defaults to 5)",
 	Short: "Get sauce and selenium-server log file from recent jobs. Saves to ./saucedata/{jobID}",
 	Long:  `Get sauce and selenium-server log file from recent jobs. Saves to ./saucedata/{jobID}`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -39,7 +39,7 @@ func init() {
 	rootCmd.AddCommand(getjoblogsCmd)
 
 	// Here you will define your flags and configuration settings.
-	getjoblogsCmd.Flags().UintVarP(&max, "max", "m", 1, "Max number of jobs to return")
+	getjoblogsCmd.Flags().UintVarP(&max, "max", "m", 5, "Max number of jobs to return")
 	getjoblogsCmd.MarkFlagRequired("max")
 
 	// Cobra supports Persistent Flags which will work for this command
