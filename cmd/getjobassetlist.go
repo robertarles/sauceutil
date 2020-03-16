@@ -27,7 +27,7 @@ var jobID string
 
 // getjobassetlistCmd represents the getjobassetlist command
 var getjobassetlistCmd = &cobra.Command{
-	Use:   "getjobassetlist -j {JobID}",
+	Use:   "assetlist -i {JobID}",
 	Short: "Get a list of files associated to a job.",
 	Long:  `Get a list of files associated to a job.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -61,8 +61,8 @@ func init() {
 	rootCmd.AddCommand(getjobassetlistCmd)
 	// Here you will define your flags and configuration settings.
 
-	getjobassetlistCmd.Flags().StringVarP(&jobID, "jobid", "j", "", "The Saucelabs job ID to get an asset list for.")
-	getjobassetlistCmd.MarkFlagRequired("jobid")
+	getjobassetlistCmd.Flags().StringVarP(&jobID, "id", "i", "", "The Saucelabs job ID to get an asset list for.")
+	getjobassetlistCmd.MarkFlagRequired("id")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:

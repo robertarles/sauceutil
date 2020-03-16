@@ -60,8 +60,8 @@ func init() {
 	rootCmd.AddCommand(deletejobCmd)
 
 	// Here you will define your flags and configuration settings.
-	deletejobCmd.Flags().StringVarP(&deleteJobID, "jobid", "j", "", "Saucelabs Job ID")
-	deletejobCmd.MarkFlagRequired("jobid")
+	deletejobCmd.Flags().StringVarP(&deleteJobID, "id", "i", "", "Saucelabs Job ID")
+	deletejobCmd.MarkFlagRequired("id")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:

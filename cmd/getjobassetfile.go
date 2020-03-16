@@ -28,7 +28,7 @@ var filename string
 
 // getjobassetfileCmd represents the getjobassetfile command
 var getjobassetfileCmd = &cobra.Command{
-	Use:   "getjobassetfile -j {jobid} -f {filename}",
+	Use:   "assetfile -i {jobID} -f {filename}",
 	Short: "Dowload a specific asset file.",
 	Long:  `Dowload a specific asset file.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -44,8 +44,8 @@ var getjobassetfileCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(getjobassetfileCmd)
 
-	getjobassetfileCmd.Flags().StringVarP(&jobIDForFile, "jobid", "j", "", "Saucelabs job ID")
-	getjobassetfileCmd.MarkFlagRequired("jobid")
+	getjobassetfileCmd.Flags().StringVarP(&jobIDForFile, "id", "i", "", "Saucelabs job ID")
+	getjobassetfileCmd.MarkFlagRequired("id")
 	getjobassetfileCmd.Flags().StringVarP(&filename, "filename", "f", "", "Name of the jobs asset file (see output from 'getjobassetfilelist')")
 	getjobassetfileCmd.MarkFlagRequired("filename")
 	// Here you will define your flags and configuration settings.
