@@ -14,6 +14,52 @@ type StorageResponse struct {
 	Files []FileData `json:"files"`
 }
 
+// TunnelExtra is sub-object in a Saucelabs tunnel API response
+type TunnelExtra struct {
+	InjectJobID bool   `json:"inject_job_id"`
+	Backend     string `json:"backend"`
+	MetricsHost string `json:"metrics_host"`
+	MetricsPort int    `json:"metrics_port"`
+}
+
+// TunnelMetadata is a sub-object in a saucelabs tunnel API response
+type TunnelMetadata struct {
+	Hostname    string `json:"hostname"`
+	GitVersion  string `json:"git_version"`
+	Platform    string `json:"platform"`
+	Command     string `json:"command"`
+	Build       string `json:"build"`
+	Release     string `json:"release"`
+	NofileLimit int64  `json:"nofile_limit"`
+}
+
+// TunnelData is Saucelabs Tunnel API response
+type TunnelData struct {
+	TeamIds          []string       `json:"team_ids"`
+	SSHPort          int            `json:"ssh_port"`
+	CreationTime     int64          `json:"creation_time"`
+	DomainNames      []string       `json:"domain_names"`
+	Owner            string         `json:"owner"`
+	UseKGP           bool           `json:"use_kgp"`
+	ID               string         `json:"id"`
+	ExtraInfo        TunnelExtra    `json:"extra_info"`
+	DirectDomains    []string       `json:"direct_domains"`
+	VMVersion        string         `json:"vm_version"`
+	NoSslBumpDomains []string       `json:"no_ssl_bump_domains"`
+	SharedTunnel     bool           `json:"shared_tunnel"`
+	Metadata         TunnelMetadata `json:"metadata"`
+	Status           string         `json:"status"`
+	ShutdownTime     string         `json:"shutdown_time"`
+	Host             string         `json:"host"`
+	IPAddress        string         `json:"ip_address"`
+	LastConnected    string         `json:"last_connected"`
+	UserShutdown     string         `json:"user_shutdown"`
+	UseCachingProxy  bool           `json:"use_caching_proxy"`
+	LaunchTime       int64          `json:"launch_time"`
+	NoProxyCaching   bool           `json:"no_proxy_caching"`
+	TunnelIdentifier string         `json:"tunnel_identifier"`
+}
+
 // CustomJobData internal structure of a Saucelabs JobData API response
 type CustomJobData struct {
 	BuildNumber      string `json:"BUILD_NUMBER"`

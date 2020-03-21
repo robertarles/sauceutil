@@ -1,10 +1,137 @@
 package cmd
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
 )
+
+// OPrintFormatted prints formatted header or formatted header+values of a json string based on json field names
+func OPrintFormatted(reqFieldNames []string, jsonString string, printHeader bool) error {
+
+	errMessage := ""           // error messages, because I like to save things (okay, for printing later)
+	maxLens := []int{}         // max names/values lengths, for printing column widths
+	reportRows := [][]string{} // each row will be an array of values (a report row) based on a resultMap item
+
+	// convert our jsonstring to a usable object
+	var resultMap map[string]interface{} // result is going to be the map object created from the json string
+	errToMap := json.Unmarshal([]byte(jsonString), &resultMap)
+	var resultArray []map[string]interface{}                       // result is going to be the array object created from the json string
+	errToArray := json.Unmarshal([]byte(jsonString), &resultArray) // and, do it.
+
+	// if we could not unmarshall the response
+	if errToMap != nil && errToArray != nil {
+		return errors.New("failed to unmarshal API response")
+	}
+
+	// if API response was an array
+	if errToMap != nil {
+		// get the available field names based on requested field names (user may typo or ask for non existant fields)
+		reportHeaders, err := ArrayToMapNamesIntersection(reqFieldNames, resultArray[0])
+		if err != nil {
+			errMessage += err.Error()
+		}
+		// set the initial max col lengths to the column/field names
+		for _, name := range reportHeaders {
+			maxLens = append(maxLens, len(fmt.Sprintf("%v", name)))
+		}
+
+		for _, resultMap := range resultArray {
+			// store a report row here
+			row := []string{}
+			for i, name := range reportHeaders {
+				// store this value in its report row
+				row = append(row, fmt.Sprintf("%v", resultMap[name]))
+				// update the record of longest items in a column
+				if len(fmt.Sprintf("%v", resultMap[name])) > maxLens[i] {
+					maxLens[i] = len(fmt.Sprintf("%v", resultMap[name]))
+				}
+			}
+			reportRows = append(reportRows, row)
+		}
+		printReport(reportHeaders, reportRows, maxLens)
+		// if API response was a map
+	} else {
+		// get the available field names based on requested field names (user may typo or ask for non existant fields)
+		reportHeaders, err := ArrayToMapNamesIntersection(reqFieldNames, resultMap)
+		if err != nil {
+			errMessage += err.Error()
+		}
+		// set the initial max col lengths to the column/field names
+		for _, name := range reportHeaders {
+			maxLens = append(maxLens, len(fmt.Sprintf("%v", name)))
+		}
+		row := []string{}
+		for i, name := range reportHeaders {
+			// store this value in its report row
+			row = append(row, fmt.Sprintf("%v", resultMap[name]))
+			// update the record of longest items in a column
+			if len(fmt.Sprintf("%v", resultMap[name])) > maxLens[i] {
+				maxLens[i] = len(fmt.Sprintf("%v", resultMap[name]))
+			}
+		}
+		reportRows = append(reportRows, row)
+		printReport(reportHeaders, reportRows, maxLens)
+	}
+
+	// TODO: Get the valid field names and set the initial values for maxLens
+
+	// use sampleitem to validate that the requested field names exist, build reportFieldNames (validated requested names)
+	// IF reqFieldName is in sampleItem
+	// THEN
+	//		append(reportFieldNames, reqFieldName)
+	// 		set maxLens as field names are validated
+	// ELSE
+	//		append(errMessage...)
+
+	// TODO: step through the json item(s) and build each report line to print
+	// IF 'result' is an array
+	// THEN
+	// 		step through each and build a line of each result[reportFiledNames] value
+	//		if the len(value) > maxLens[i], set maxLens[i] to value
+	// ELSE just build a line from 'result'
+
+	// check api response for the requested fieldnames, validate that they exist
+	// also, set the initial maxLens of each column, at least wide enough for the column names
+
+	// Print the header row
+	// For each reportLine, fmt.Printf("%s ", rightPad2Len(line, " ", maxLens[i]+2))
+
+	return nil
+}
+
+// ArrayToMapNamesIntersection returns the intersection of two arrays
+func ArrayToMapNamesIntersection(reqFieldNames []string, resultMap map[string]interface{}) ([]string, error) {
+	intersectionNames := []string{}
+	errorMessage := ""
+	for _, name := range reqFieldNames {
+		_, ok := resultMap[name]
+		if ok {
+			intersectionNames = append(intersectionNames, name)
+		} else {
+			errorMessage += fmt.Sprintf("could not find field name '%s' in API response\n", name)
+		}
+	}
+	return intersectionNames, nil
+}
+
+func printReport(reportHeaders []string, reportRows [][]string, maxColLengths []int) {
+	for i, header := range reportHeaders {
+		fmt.Printf(fmt.Sprintf("%s", rightPad2Len(header, " ", maxColLengths[i]+2)))
+	}
+	fmt.Println("")
+
+	for _, row := range reportRows {
+
+		for i, value := range row {
+			fmt.Printf(fmt.Sprintf("%s", rightPad2Len(value, " ", maxColLengths[i]+2)))
+		}
+
+		fmt.Println("")
+	}
+}
 
 // TODO: Update this to handle printing nested structure fields, specifically consider the uploads response which is hides in a 'file' object
 
