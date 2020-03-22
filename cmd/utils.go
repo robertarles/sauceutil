@@ -15,19 +15,48 @@ func OPrintFormatted(reqFieldNames []string, jsonString string, printHeader bool
 	maxLens := []int{}         // max names/values lengths, for printing column widths
 	reportRows := [][]string{} // each row will be an array of values (a report row) based on a resultMap item
 
-	// convert our jsonstring to a usable object
+	// flag, if converion to an array is successful (else it's a map)
+	resultIsArray := false
+
+	// attempt conversion of result to an ARRAY of maps
+	var resultArray []map[string]interface{}
+	errToArray := json.Unmarshal([]byte(jsonString), &resultArray) // convert/unmarshal
+	if errToArray == nil {
+		//success?, flag as array
+		resultIsArray = true
+	}
+
+	// attempt conversion to a map
 	var resultMap map[string]interface{} // result is going to be the map object created from the json string
 	errToMap := json.Unmarshal([]byte(jsonString), &resultMap)
-	var resultArray []map[string]interface{}                       // result is going to be the array object created from the json string
-	errToArray := json.Unmarshal([]byte(jsonString), &resultArray) // and, do it.
+	if errToMap == nil {
+		// success? flag NOT array
+		resultIsArray = false
+	}
 
-	// if we could not unmarshall the response
+	// did both unmarshal attempts fail?, quit here
 	if errToMap != nil && errToArray != nil {
 		return errors.New("failed to unmarshal API response")
 	}
 
+	// determine if the map contains an uploads API files array response
+	// if so, we need to extract the ARRAY of maps from this map
+	_, ok := resultMap["files"]
+	if ok {
+		if len(resultMap) == 1 {
+			var resultMapMap map[string][]map[string]interface{} // note that this is an array of maps, EMBEDED in a map
+			errToMap := json.Unmarshal([]byte(jsonString), &resultMapMap)
+			if errToMap != nil {
+				return errors.New("failed to unmarshal uploads API response into an array of maps")
+			}
+			resultArray = resultMapMap["files"]
+			// we'd flagged this as NOT an array, but we have now extracted an array of maps.
+			resultIsArray = true
+		}
+	}
+
 	// if API response was an array
-	if errToMap != nil {
+	if resultIsArray {
 		// get the available field names based on requested field names (user may typo or ask for non existant fields)
 		reportHeaders, err := ArrayToMapNamesIntersection(reqFieldNames, resultArray[0])
 		if err != nil {
@@ -54,6 +83,7 @@ func OPrintFormatted(reqFieldNames []string, jsonString string, printHeader bool
 		printReport(reportHeaders, reportRows, maxLens)
 		// if API response was a map
 	} else {
+
 		// get the available field names based on requested field names (user may typo or ask for non existant fields)
 		reportHeaders, err := ArrayToMapNamesIntersection(reqFieldNames, resultMap)
 		if err != nil {
