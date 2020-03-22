@@ -15,8 +15,8 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -29,7 +29,7 @@ var uploadsCmd = &cobra.Command{
 	Short: "A list of files already uploaded to sauce-storage.",
 	Long:  `A list of files already uploaded to sauce-storage.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var storageResponse, jsonString, err = Uploads()
+		var jsonString, err = Uploads()
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			os.Exit(1)
@@ -42,7 +42,7 @@ var uploadsCmd = &cobra.Command{
 			fmt.Printf("%s\n", jsonString)
 		} else {
 			printHeader := true
-			err := OPrintStruct(OutFormat, storageResponse, printHeader)
+			err := OPrintFormatted(OutFormat, jsonString, printHeader)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
 				os.Exit(1)
@@ -74,7 +74,7 @@ func init() {
 }
 
 // Uploads returns a list of files in the sauce-storage upload area
-func Uploads() (storageResponse StorageResponse, jsonString string, err error) {
+func Uploads() (jsonString string, err error) {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
@@ -82,29 +82,18 @@ func Uploads() (storageResponse StorageResponse, jsonString string, err error) {
 	client := &http.Client{}
 	request, reqErr := http.NewRequest("GET", apiURL+"/storage/"+username, nil)
 	if reqErr != nil {
-		return StorageResponse{}, "", reqErr
+		return "", reqErr
 	}
 	request.SetBasicAuth(username, accessKey)
 	response, doErr := client.Do(request)
 	if doErr != nil {
-		return StorageResponse{}, "", doErr
+		return "", doErr
+	}
+	jsonBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", err
 	}
 
-	decoder := json.NewDecoder(response.Body)
-	storageResponse = StorageResponse{}
-	decodeErr := decoder.Decode(&storageResponse)
-	if decodeErr != nil {
-		return StorageResponse{}, "", decodeErr
-	}
-
-	if len(storageResponse.Files) < 1 {
-		return StorageResponse{}, "", nil
-	}
-
-	jsonBytes, marshErr := json.MarshalIndent(storageResponse, "", "  ")
-	if marshErr != nil {
-		return StorageResponse{}, "", marshErr
-	}
-	return storageResponse, string(jsonBytes), nil
+	return string(jsonBytes), nil
 
 }
