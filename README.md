@@ -94,7 +94,9 @@ $ sauceutil jobs -m 1
   
 ```
 
-### Command line example with `-o` formatting. Note the field names are from the JSON in the previous example
+### Command line example with `-o` formatting
+
+Note the field names passed to the -o arg are from the JSON in the previous example.
 
 ``` bash
 $ sauceutil jobs -m 5 -o "id,passed,status,owner"
