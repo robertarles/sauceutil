@@ -15,8 +15,8 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -31,7 +31,7 @@ var getjobsCmd = &cobra.Command{
 	Short: "Retrieve a list of the most recent jobs run.",
 	Long:  `Retrieve a list of the most recent jobs run.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		_, jsonString, err := GetJobs(fmt.Sprint(maxJobs))
+		jsonString, err := GetJobs(fmt.Sprint(maxJobs))
 		if err != nil {
 			fmt.Printf("%+v\n", err)
 			os.Exit(1)
@@ -71,7 +71,7 @@ func init() {
 }
 
 // GetJobs Get details for [count] last jobs
-func GetJobs(count string) (jobDataArray []JobData, jsonString string, err error) {
+func GetJobs(count string) (jsonString string, err error) {
 
 	username := os.Getenv("SAUCE_USERNAME")
 	accessKey := os.Getenv("SAUCE_ACCESS_KEY")
@@ -82,20 +82,12 @@ func GetJobs(count string) (jobDataArray []JobData, jsonString string, err error
 	response, err := client.Do(request)
 	if err != nil {
 		fmt.Printf("the http request to get jobs failed with error %s\n", err)
-		return []JobData{}, jsonString, err
+		return jsonString, err
 	}
-
-	decoder := json.NewDecoder(response.Body)
-	jobDataArray = []JobData{}
-	decodeErr := decoder.Decode(&jobDataArray)
-	if decodeErr != nil {
-		return []JobData{}, "", decodeErr
+	jsonBytes, errReading := ioutil.ReadAll(response.Body)
+	if errReading != nil {
+		return "", fmt.Errorf("error reading API response")
 	}
-	jsonBytes, marshErr := json.MarshalIndent(jobDataArray, "", "  ")
-	if marshErr != nil {
-		return []JobData{}, "", marshErr
-	}
-
-	return jobDataArray, string(jsonBytes), err
+	return string(jsonBytes), err
 
 }

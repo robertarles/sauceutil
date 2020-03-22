@@ -15,10 +15,11 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"time"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -54,47 +55,51 @@ func init() {
 // GetJobLogs Gets job lobs for [count] last jobs
 func GetJobLogs(max uint) {
 
-	jobs, _, err := GetJobs(fmt.Sprint(max))
-
+	jsonString, err := GetJobs(fmt.Sprint(max))
 	if err != nil {
-		fmt.Printf("ERROR: GetJobLogs received the error message  \"%s\"\n", err)
-	} else {
-		for _, job := range jobs {
-			startTime := time.Unix(job.StartTime, 0)
-			fmt.Printf("Start Time: %s, ", startTime)
-			if job.Passed {
-				fmt.Printf("PASSED \n")
-			} else if len(job.Error) > 0 {
-				fmt.Printf("FAILED, Saucelabs Error: %s\n", job.Error)
-			} else {
-				fmt.Printf("FAILED \n")
-			}
-			os.MkdirAll(("./saucedata/" + job.ID), 0777)
-			jobString := fmt.Sprintf("%+v", job)
-			ioutil.WriteFile("./saucedata/"+job.ID+"/"+job.ID+"-job-object.json", []byte(jobString), 0777)
+		panic(err)
+	}
 
-			// TODO: if "Job hasn't finished running" then we should skip, it's currently written as the log for some reason
-			// TODO: does catching an error for getjobassetlist handle this?
-			assetList, _, err := GetJobAssetList(job.ID)
+	var resultArray []map[string]interface{} // result is going to be the array object created from the json string
+	errToArray := json.Unmarshal([]byte(jsonString), &resultArray)
+	if errToArray != nil {
+		panic(errToArray)
+	} else {
+		for _, item := range resultArray {
+
+			jobID := fmt.Sprintf("%v", item["id"])
+
+			os.MkdirAll(("./saucedata/" + jobID), 0777)
+			jobString := fmt.Sprintf("%+v", item)
+			ioutil.WriteFile("./saucedata/"+jobID+"/"+jobID+"-job-object.json", []byte(jobString), 0777)
+
+			jsonString, err := GetJobAssetList(jobID)
 			if err != nil {
 				fmt.Printf("error getting asset list: %s\n", err)
 				continue
 			}
-
-			sauceLog, err := GetAssetFile(job.ID, assetList.SauceLog)
+			if strings.Contains(jsonString, "Job hasn't finished running") {
+				continue
+			}
+			var assetList map[string]interface{} // result is going to be the array object created from the json string
+			errToList := json.Unmarshal([]byte(jsonString), &assetList)
+			if errToList != nil {
+				fmt.Printf("error converting asset list: %s\n", err)
+				continue
+			}
+			sauceLog, err := GetAssetFile(jobID, fmt.Sprintf("%v", assetList["sauce-log"]))
 			if err == nil {
-				err = ioutil.WriteFile("./saucedata/"+job.ID+"/"+job.ID+"-sauce-log.json", []byte(sauceLog), 0777)
+				err = ioutil.WriteFile("./saucedata/"+jobID+"/"+jobID+"-sauce-log.json", []byte(sauceLog), 0777)
 			} else {
 				fmt.Printf("sauce-log retrieval error: %s\n", err)
 			}
 
-			seleniumServerLog, err := GetAssetFile(job.ID, assetList.SeleniumLog)
+			seleniumServerLog, err := GetAssetFile(jobID, fmt.Sprintf("%v", assetList["selenium-log"]))
 			if err == nil {
-				err = ioutil.WriteFile("./saucedata/"+job.ID+"/"+job.ID+"-selenium-server.log", []byte(seleniumServerLog), 0777)
+				err = ioutil.WriteFile("./saucedata/"+jobID+"/"+jobID+"-selenium-server.log", []byte(seleniumServerLog), 0777)
 			} else {
 				fmt.Printf("selenium-server retrieval error: %s\n", err)
 			}
-
 		}
 	}
 }

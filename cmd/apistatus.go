@@ -15,8 +15,8 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -29,7 +29,7 @@ var apistatusCmd = &cobra.Command{
 	Short: "Request the current API status.",
 	Long:  `Request the current API status.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var _, jsonString, err = GetAPIStatus()
+		var jsonString, err = GetAPIStatus()
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			os.Exit(1)
@@ -67,26 +67,18 @@ func init() {
 }
 
 // GetAPIStatus Get the status of the Saucelabs API
-func GetAPIStatus() (respBody APIStatusResponseData, jsonString string, err error) {
+func GetAPIStatus() (jsonString string, err error) {
 
 	response, err := http.Get(apiURL + "/info/status")
-
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
-		return APIStatusResponseData{}, "", err
+		return "", err
 	}
-
-	respBody = APIStatusResponseData{}
-	decoder := json.NewDecoder(response.Body)
-	decodeErr := decoder.Decode(&respBody)
-	if decodeErr != nil {
-		return APIStatusResponseData{}, "", decodeErr
+	defer response.Body.Close()
+	body, errReading := ioutil.ReadAll(response.Body)
+	if errReading != nil {
+		return "", fmt.Errorf("error reading API response")
 	}
-	jsonBytes, marshErr := json.MarshalIndent(respBody, "", "  ")
-	if marshErr != nil {
-		return APIStatusResponseData{}, "", marshErr
-	}
-
-	return respBody, string(jsonBytes), nil
+	return string(body), nil
 
 }
