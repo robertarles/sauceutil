@@ -107,3 +107,11 @@ id                                passed  status    owner
 c029e776f1b847b580a27e0dd53d198e  false   complete  ownername1  
 d56880d2b83af6f0a456417f127af80f  false   complete  ownername1
 ```
+
+## Downloads
+
+Mac and Linux downloads, don't forget you have to do a `chmod +x {path}/{to}/sauceutil` to make it executable
+
+[MacOS](https://github.com/robertarles/sauceutil/raw/master/bin/macos/sauceutil)
+
+[linux](https://github.com/robertarles/sauceutil/raw/master/bin/linux/sauceutil)
