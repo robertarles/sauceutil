@@ -16,10 +16,6 @@ var tunnelsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var tunnelsResponse, jsonString, err = Tunnels()
 		if err != nil {
-			fmt.Printf("%s\n", err)
-			os.Exit(1)
-		}
-		if err != nil {
 			fmt.Printf("%+v\n", err)
 			os.Exit(1)
 		}

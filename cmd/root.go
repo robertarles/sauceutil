@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"os"
 
+	sauceAPI "github.com/robertarles/sauceutil/sauceAPI"
+
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -25,14 +27,44 @@ import (
 
 var cfgFile string
 
+// OutFormat an array of user supplied fields to determine columns displayed for formatted output
+var OutFormat []string
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "sauceutil",
 	Short: "A command line utility for Saucelabs API tasks.",
 	Long:  "A command line utility for Saucelabs tasks.\nEasily upload, check uploads, get job assets and info from the command line.",
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+}
+
+// apistatusCmd represents the apistatus command
+var apistatusCmd = &cobra.Command{
+	Use:   "apistatus",
+	Short: "Request the current API status.",
+	Long:  `Request the current API status.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		var jsonString, err = sauceAPI.GetAPIStatus()
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+		} else {
+			sauceAPI.PrintResults(jsonString, OutFormat)
+		}
+	},
+}
+
+// uploadsCmd represents the uploads command
+var uploadsCmd = &cobra.Command{
+	Use:   "uploads",
+	Short: "A list of files already uploaded to sauce-storage.",
+	Long:  `A list of files already uploaded to sauce-storage.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		var jsonString, err = sauceAPI.Uploads()
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+		} else {
+			sauceAPI.PrintResults(jsonString, OutFormat)
+		}
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -44,21 +76,12 @@ func Execute() {
 	}
 }
 
-// OutFormat an array of user supplied fields to determine columns displayed for formatted output
-var OutFormat []string
-
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringSliceVarP(&OutFormat, "", "o", []string{}, "Formatted output. Supply a single, quoted and comma separated list of columns to display")
+	rootCmd.AddCommand(apistatusCmd)
+	rootCmd.AddCommand(uploadsCmd)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-	//rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.sauceutil.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.

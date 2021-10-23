@@ -1,5 +1,8 @@
 package cmd
 
+// default api url
+var apiURL = "https://saucelabs.com/rest/v1"
+
 // FileData structure of Saucelabs API response
 type FileData struct {
 	Name  string  `json:"name"`
