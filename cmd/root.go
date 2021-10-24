@@ -44,11 +44,7 @@ var apistatusCmd = &cobra.Command{
 	Long:  `Request the current API status.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var jsonString, err = sauceAPI.GetAPIStatus()
-		if err != nil {
-			fmt.Printf("%+v\n", err)
-		} else {
-			sauceAPI.PrintResults(jsonString, OutFormat)
-		}
+		sauceAPI.Log(jsonString, err, OutFormat)
 	},
 }
 
@@ -59,11 +55,30 @@ var uploadsCmd = &cobra.Command{
 	Long:  `A list of files already uploaded to sauce-storage.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var jsonString, err = sauceAPI.Uploads()
-		if err != nil {
-			fmt.Printf("%+v\n", err)
-		} else {
-			sauceAPI.PrintResults(jsonString, OutFormat)
-		}
+		sauceAPI.Log(jsonString, err, OutFormat)
+	},
+}
+
+var uploadFilename string
+
+// uploadCmd represents the upload command
+var uploadCmd = &cobra.Command{
+	Use:   "upload -f {filename}",
+	Short: "Upload a file to your sauce-storage temp file storage area.",
+	Long:  `Upload a file to your sauce-storage temp file storage area.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		var jsonString, err = sauceAPI.Upload(uploadFilename)
+		sauceAPI.Log(jsonString, err, OutFormat)
+	},
+}
+
+var tunnelsCmd = &cobra.Command{
+	Use:   "tunnels",
+	Short: "A list of tunnels available to your account.",
+	Long:  `A list of tunnels available to your account.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		var jsonString, err = sauceAPI.Tunnels()
+		sauceAPI.Log(jsonString, err, OutFormat)
 	},
 }
 
@@ -81,6 +96,11 @@ func init() {
 	rootCmd.PersistentFlags().StringSliceVarP(&OutFormat, "", "o", []string{}, "Formatted output. Supply a single, quoted and comma separated list of columns to display")
 	rootCmd.AddCommand(apistatusCmd)
 	rootCmd.AddCommand(uploadsCmd)
+	rootCmd.AddCommand(tunnelsCmd)
+	rootCmd.AddCommand(uploadCmd)
+	// define your flags and configuration settings.
+	uploadCmd.Flags().StringVarP(&uploadFilename, "filename", "f", "", "Name of file to upload to sauce-storage")
+	uploadCmd.MarkFlagRequired("filename")
 
 }
 
