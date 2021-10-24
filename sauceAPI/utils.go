@@ -148,6 +148,14 @@ func OPrintFormatted(reqFieldNames []string, jsonString string, printHeader bool
 	return nil
 }
 
+func Log(jsonString string, err error, outFormat []string) {
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+	} else {
+		PrintResults(jsonString, outFormat)
+	}
+}
+
 // ArrayToMapNamesIntersection returns the intersection of two arrays
 func ArrayToMapNamesIntersection(reqFieldNames []string, resultMap map[string]interface{}) ([]string, error) {
 	intersectionNames := []string{}
