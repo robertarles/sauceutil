@@ -1,5 +1,7 @@
 # Sauceutil
 
+Latest version: tagged v0.5.0
+
 A Saucelabs command line utility written in Go.
 
 A quick way to get things done from the command line, more portable than an npm package since the executable can be shared once compiled, it's fast, it's small, and no need to install node+npm.
