@@ -148,7 +148,7 @@ func OPrintFormatted(reqFieldNames []string, jsonString string, printHeader bool
 	return nil
 }
 
-func Log(jsonString string, err error, outFormat []string) {
+func LogJsonResults(jsonString string, err error, outFormat []string) {
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 	} else {
