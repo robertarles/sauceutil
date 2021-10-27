@@ -48,6 +48,19 @@ var apistatusCmd = &cobra.Command{
 	},
 }
 
+var platform string
+
+// getjobassetfileCmd represents the getjobassetfile command
+var getPlatformsCmd = &cobra.Command{
+	Use:   "platforms -p {platform}",
+	Short: "List of supported test platforms.",
+	Long:  `(all | webdriver | appium) Returns the set of supported operating system and browser combinations for the specified automation framework.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		var jsonString, err = sauceAPI.Platforms(platform)
+		sauceAPI.LogJsonResults(jsonString, err, OutFormat)
+	},
+}
+
 // uploadsCmd represents the uploads command
 var uploadsCmd = &cobra.Command{
 	Use:   "uploads",
@@ -182,6 +195,19 @@ var getjobassetlistCmd = &cobra.Command{
 	},
 }
 
+var tunnelID string
+
+// getJobCmd represents the getJob command
+var tunnelCmd = &cobra.Command{
+	Use:   "tunnel -i {tunnelID}",
+	Short: "Get details on a specific tunnel",
+	Long:  `Get details on a specific tunnel`,
+	Run: func(cmd *cobra.Command, args []string) {
+		var jsonString, err = sauceAPI.Tunnel(tunnelID)
+		sauceAPI.LogJsonResults(jsonString, err, OutFormat)
+	},
+}
+
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
@@ -196,6 +222,8 @@ func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringSliceVarP(&OutFormat, "", "o", []string{}, "Formatted output. Supply a single, quoted and comma separated list of columns to display")
 	rootCmd.AddCommand(apistatusCmd)
+	rootCmd.AddCommand(getPlatformsCmd)
+	getPlatformsCmd.Flags().StringVarP(&platform, "platform", "p", "", "Name test platform (all | webdriver | appium)")
 	rootCmd.AddCommand(uploadsCmd)
 	rootCmd.AddCommand(tunnelsCmd)
 	rootCmd.AddCommand(uploadCmd)
@@ -223,6 +251,9 @@ func init() {
 	rootCmd.AddCommand(getjobassetlistCmd)
 	getjobassetlistCmd.Flags().StringVarP(&jobID, "id", "i", "", "The Saucelabs job ID to get an asset list for.")
 	getjobassetlistCmd.MarkFlagRequired("id")
+	rootCmd.AddCommand(tunnelCmd)
+	tunnelCmd.Flags().StringVarP(&tunnelID, "id", "i", "", "Saucelabs Tunnel ID")
+	tunnelCmd.MarkFlagRequired("id")
 }
 
 // initConfig reads in config file and ENV variables if set.

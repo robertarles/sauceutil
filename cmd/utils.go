@@ -163,7 +163,7 @@ func printReport(reportHeaders []string, reportRows [][]string, maxColLengths []
 	}
 }
 
-// TODO: Update this to handle printing nested structure fields, specifically consider the uploads response which is hides in a 'file' object
+// TODO: Update this to handle printing nested structure fields, specifically consider the uploads response which it hides in a 'file' object
 
 // OPrintStruct prints formatted header or formatted header+values of an arbitrary structure based on JSON field names
 func OPrintStruct(reqFieldNames []string, strct interface{}, printHeader bool) error {

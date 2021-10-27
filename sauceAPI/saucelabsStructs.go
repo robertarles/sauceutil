@@ -40,7 +40,7 @@ type TunnelMetadata struct {
 type TunnelData struct {
 	TeamIds          []string       `json:"team_ids"`
 	SSHPort          int            `json:"ssh_port"`
-	CreationTime     int64          `json:"creation_time"`
+	CreationTime     int64          `json:"creation_tim		te"`
 	DomainNames      []string       `json:"domain_names"`
 	Owner            string         `json:"owner"`
 	UseKGP           bool           `json:"use_kgp"`
